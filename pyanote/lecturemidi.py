@@ -1,5 +1,8 @@
 #on selectionne un  fichier
 #retourne un dico avec les pistes le format 0,1...
+MAXINT = float('inf')
+
+
 
 def preparer_midi(nom_fichier):
     ''' Retourne un dictionnaire contenant les informations nécessaires à l'utilisation d'un fichier MIDI.
@@ -72,7 +75,7 @@ def enumerer_piste(description, num_piste):
     while fichier.tell() < description_piste['fin']:
         delta_temps = lire_entier_variable(fichier) # ordre a pas changer!!
         evenement = lire_evenement(fichier, sauvegarde)
-        yield delta_temps, evenement  # enumere 
+        yield [delta_temps, evenement]  # enumere 
 
 def lire_evenement(fichier,sauvegarde):
     octet = ord(fichier.read(1))
@@ -117,7 +120,44 @@ def lire_message(fichier, octet, sauvegarde):
         arg2 = ord(fichier.read(1))
     return ['message', instruction, canal, arg1, arg2]
     
-    
+def enumerer_pistes(description):
+    nb_pistes=description["nb_pistes"]
+    iterateurs = []
+    for num_piste in range (nb_pistes):
+        iterateur = iter(enumerer_piste(description,num_piste))
+        iterateurs.append(iterateur)
+    prochains =[]
+    for j in range (nb_pistes):
+        element = prochain(iterateurs,j)
+        prochains.append(element)
+    temps = 0
+    position = position_plus_petit(prochains)
+    while prochains[position][0] < MAXINT:
+        evenement = prochains[position]
+        date = evenement[0]
+        evenement[0]= evenement[0]- temps#incompris
+        temps = date
+        yield evenement
+        nouveau = prochain(iterateurs,position)
+        nouveau[0]= nouveau[0]+temps
+        prochains[position]=nouveau
+        position = position_plus_petit(prochains)
+
+
+def prochain(iterateurs, i):
+    try:
+        return next(iterateurs[i])
+    except StopIteration:
+        return [MAXINT,[]]
+
+def position_plus_petit(prochains):
+    position = 0
+    for i in range(1, len(prochains)):
+        if prochains[i][0] < prochains[position][0]:
+            position = i
+    return position
+        
+
 if __name__ == "__main__":
     nom ="../exemples/Dave Brubeck - Take Five 1.mid"
     descrip = preparer_midi(nom)

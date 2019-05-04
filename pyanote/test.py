@@ -19,7 +19,7 @@ def jouer_message(midi, message):
     print([status,message[3],message[4]])
         
 def attendre(temps):
-    time.sleep(temps/100)
+    time.sleep(temps/1000)
 
 
 if __name__ == "__main__":
@@ -27,5 +27,5 @@ if __name__ == "__main__":
     descrip = lecturemidi.preparer_midi(nom)
     midi = lecturesons.demarrer()
 #    midi.write_short(0x90, 60, 120)
-    for element in lecturemidi.enumerer_piste(descrip, 3):
+    for element in lecturemidi.enumerer_pistes(descrip):
         jouer(midi, element[0], element[1])
