@@ -49,7 +49,7 @@ def lire_nb_pistes(fichier):
 def lire_tempo(fichier):
     octet1 = ord(fichier.read(1))
     octet2 = ord(fichier.read(1))
-    if octet1 < 128: # bit de poids fort à 0
+    if octet1 < 128: # bit de poids fort = 0
         return {"metrique" : True, "valeur" : 256 * octet1 + octet2}
     else:
         return {"metrique" : False, "smpte" : octet1 - 128, "tpf" : octet2}
@@ -95,7 +95,7 @@ def lire_evenement_systeme(fichier):
     taille = lire_entier_variable(fichier)
     valeur = fichier.read(taille)
     return ["systeme", valeur]
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
 def lire_message(fichier, octet, sauvegarde):
     instruction = octet // 16 # 4 1ers bits
     if instruction < 8 or instruction > 14: # pas une instruction
@@ -112,14 +112,14 @@ def lire_message(fichier, octet, sauvegarde):
         sauvegarde[2] = canal
         arg1 = ord(fichier.read(1))
     if instruction == 12 or instruction ==13: # instructions à 1 argument
-        arg2 = None
+        arg2 = 0
     else:
         arg2 = ord(fichier.read(1))
     return ['message', instruction, canal, arg1, arg2]
     
     
 if __name__ == "__main__":
-    nom ="midifiles/Bee_Gees_-_Tragedy.mid"
+    nom ="../exemples/Dave Brubeck - Take Five 1.mid"
     descrip = preparer_midi(nom)
     for element in enumerer_piste(descrip, 0):
         print(element)
