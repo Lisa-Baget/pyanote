@@ -12,12 +12,10 @@ import pyanote.son as son
 import pyanote.controleur as cont
 import threading
 
-
-def preparer_lecture(nom_fichier):
+def preparer_lecture(nom_fichier, sortie_midi):
     resume = res.creer_resume(nom_fichier)
     album = alb.creer_album(resume)
-    midi = son.connecter_sortie()
-    controleur = cont.creer_controleur(resume, midi)
+    controleur = cont.creer_controleur(resume, sortie_midi)
     controleur["thread"] = threading.Thread(None, cont.jouer_album, None, [album, controleur])
     return controleur
 
@@ -38,10 +36,12 @@ if __name__ == "__main__":
     import time
     import tkinter
     from tkinter.filedialog import askopenfilename
+    import pyanote.son as son
     root = tkinter.Tk()
     root.withdraw() # https://stackoverflow.com/questions/9319317/quick-and-easy-file-dialog-in-python
     nom_fichier = askopenfilename()
-    controleur = preparer_lecture(nom_fichier)
+    midi = son.connecter_sortie()
+    controleur = preparer_lecture(nom_fichier, midi)
     demarrer_lecture(controleur)
     time.sleep(10)
     pause_lecture(controleur)
