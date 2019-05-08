@@ -48,7 +48,7 @@ def lire_message_meta(fichier): # liste de longueur 2
     type_meta = ord(fichier.read(1))
     taille = utils.lire_entier_variable(fichier)
     if type_meta >= 0x01 and type_meta <= 0x07: # texte
-        valeur = decoder_chaine_binaire(fichier.read(taille))  
+        valeur = utils.lire_chaine(fichier, taille) # essaie de traduire en non binaire
     elif type_meta in [0x00, 0x20, 0x51]: # entier
         valeur = utils.lire_entier(fichier, taille)
     elif type_meta in [0x2F, 0x54, 0x58, 0x59]: # liste d'octets
