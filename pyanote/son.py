@@ -47,6 +47,17 @@ if __name__ == "__main__":
     time.sleep(1)
     message_controle(sortie_son, [0x80, 60, 120])
     message_controle(sortie_son, [0x80, 65, 120])
-    message_controle(sortie_son, [0x80, 72, 120]) # note off sur une note non jouée
+    # test pour savoir si on peut faire des note off qui servent a rien: reponse OUI
+    message_controle(sortie_son, [0x80, 72, 120]) # note off sur une note non jouée: pas de probleme et c'est tant mieux
+    time.sleep(1)
+    # test pour savoir si un note off peut arreter plusieurs note on: reponse OUI
+    message_controle(sortie_son, [0xC0, 57, 0]) # trompette (son long si pas stoppé)
+    message_controle(sortie_son, [0x90, 60, 120])
+    time.sleep(0.1)
+    message_controle(sortie_son, [0xC0, 58, 0]) # autre trompette
+    message_controle(sortie_son, [0x90, 60, 120]) # meme note
+    time.sleep(2)
+    message_controle(sortie_son, [0x80, 60, 120]) # on arrete la note
+    time.sleep(3)
     deconnecter(sortie_son)
 
