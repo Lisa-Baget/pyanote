@@ -6,13 +6,11 @@
 
 Ce module contient les fonctions permettant de jouer un unique message Midi.
 """
-
 import pygame.midi as pgm
 
 pgm.init()
-DEFAULT =  pgm.get_default_output_id()
 
-def connecter_sortie(ident=DEFAULT):
+def connecter_sortie(ident=pgm.get_default_output_id()):
     return pgm.Output(ident)
 
 def message(sortie_son, message):
@@ -49,6 +47,9 @@ if __name__ == "__main__":
     message_controle(sortie_son, [0x80, 65, 120])
     # test pour savoir si on peut faire des note off qui servent a rien: reponse OUI
     message_controle(sortie_son, [0x80, 72, 120]) # note off sur une note non jouée: pas de probleme et c'est tant mieux
+    time.sleep(1)
+    # test pour savoir quel est le canal batterie
+    message_controle(sortie_son, [0x99, 60, 120]) # le 10eme canal, c'est à dire le 9!!!
     time.sleep(1)
     # test pour savoir si un note off peut arreter plusieurs note on: reponse OUI
     message_controle(sortie_son, [0xC0, 57, 0]) # trompette (son long si pas stoppé)
