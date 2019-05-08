@@ -29,6 +29,7 @@ if __name__ == "__main__":
     import pyanote.resume as res
     # suivant l'environnement, peut avoir besoin de mettre un chemin different
     nom_fichier = 'fichiersMidi/Dave Brubeck - Take Five.mid'
+    print("========== Exemple")
     resume = res.creer_resume(nom_fichier)
     album = creer_album(resume)
     print("L'album contient", len(album), "titre(s).")
