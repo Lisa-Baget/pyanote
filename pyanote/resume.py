@@ -6,6 +6,8 @@
 
 Ce module contient les fonctions permettant de construire un dictionnaire qui contient les informations
 essentielles d'un fichier Midi, apres une lecture partielle.
+
+TODO: Comprendre le deuxieme format de tempo
 """
 import pyanote.utils as utils
 
