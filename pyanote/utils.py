@@ -27,3 +27,12 @@ def lire_entier_variable(fichier):
 
 def avancer(fichier, nb_octets):
     fichier.seek(nb_octets, 1) #1 a partir de la position ou l'on est / 0 debut fichier
+
+def lire_chaine_binaire(fichier, taille):
+    chaine = fichier.read(taille)
+    for codage in ['utf-8', 'latin-1']: # rajouter si je trouve des fichiers ou ça suffit pas
+        try:
+            return chaine.decode(codage)
+        except UnicodeDecodeError:
+            pass
+    return chaine
