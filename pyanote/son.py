@@ -39,7 +39,7 @@ if __name__ == "__main__":
     message_controle(sortie_son, [0x90, 60, 120]) # note on canal 0 (0x90), note 60, velocité 120
     message_controle(sortie_son, [0x90, 65, 120])
     time.sleep(0.5)
-    message_controle(sortie_son, [0x80, 60, 120]) # note off
+    message_controle(sortie_son, [0x80, 60, 120]) # note off: doit le faire pour chaque note on
     message_controle(sortie_son, [0x80, 65, 120])
     message_controle(sortie_son, [0xC0, 66, 0]) # alto sax
     message_controle(sortie_son, [0x90, 60, 120])
