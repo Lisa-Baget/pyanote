@@ -51,7 +51,8 @@ def calculer_index_prochain(liste_temps):
     return index
 
 if __name__ == "__main__":
-    print("Pistes simplifiées (les messages sont des lettres):")
+    print("Exemple avec des pistes simplifiées (les messages sont des lettres)")
+    print("Pistes simplifiées:")
     liste1 = [[0, 'B', 1], [10, 'A', 1], [20,  'S', 1]]
     liste2 = [[10, 'V', 2], [10, 'L', 2], [10, 'A', 2]]
     liste3 = [[0, 'R', 3], [10, 'O', 3], [0, ' ', 3], [10, 'I', 3]]
