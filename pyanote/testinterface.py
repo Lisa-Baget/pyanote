@@ -22,6 +22,7 @@ def Lire():
 fenetre = tkinter.Tk()
 fenetre.title("Py@Note")
 
+# creation du menu
 menubar = tkinter.Menu(fenetre)
 
 menufichier = tkinter.Menu(menubar,tearoff=0)
