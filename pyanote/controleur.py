@@ -11,18 +11,24 @@ TODO: Tester le controleur dans un thread, enrichier le controleur
 import time
 import pyanote.son as son
 
-def creer_controleur(resume, sortie_midi):
+def creer_controleur(resume, sortie_midi, analyse=False):
     controleur = {"titre": 0, "evenement": 0, "temps_ticks": 0, "temps_micros": 0,
-                  "pause": False, "fin": False, "midi": sortie_midi}
+                  "pause": False, "fin": False, "midi": sortie_midi, "notes actives": [],
+                  "canaux libres": [True] * 16, "pistes actives": [not analyse] * resume['nb_pistes'], 
+                  'analyse': analyse, 'kar': False}
     if resume["tempo"]["metrique"]:
         controleur["ticks/beat"] = resume["tempo"]["valeur"]
         maj_tempo(controleur, 500000) # valeur par defaut, 120BPM
     else:
         raise TypeError("Ce type de tempo n'est pas encore traité")
+    for __ in range(16): # pour chaque canal
+        controleur["notes actives"].append(set([]))
+    if resume['fichier'][-3:] == 'kar':
+        controleur['kar'] = True
+        controleur['texte karaoke'] = []
     return controleur
 
 def maj_tempo(controleur, tempo):
-    print('changement tempo')
     controleur["micros/tick"] = tempo / controleur["ticks/beat"]
 
 def maj_temps(controleur, ticks):
@@ -31,27 +37,44 @@ def maj_temps(controleur, ticks):
     controleur["temps_micros"] += micros
     return micros
 
+def maj_note_active(message, controleur):
+    if message[0] // 16 == 8 or (message[0] // 16 == 9 and message[2] == 3): # note off
+        controleur["notes actives"][message[0] % 16].discard(message[1])
+    elif message[0] // 16 == 9: # vrai note on
+        canal = message[0] % 16
+        if canal != 9: # on n'a pas besoin d'arreter les notes du canal batterie
+            controleur['canaux libres'][canal] = False
+            controleur["notes actives"][canal].add(message[1])
+
 def jouer_album(album, controleur):
     while (not controleur['fin']):
         if controleur['pause']:
+            vider_notes_actives(controleur)
             time.sleep(0.1) # durée à verifier dans tests
         else: # traiter le prochain evenement
             evenement = album[controleur["titre"]][controleur["evenement"]]
             micros = maj_temps(controleur, evenement[0])
-            time.sleep(micros / 10**6)
+            if not controleur['analyse']:
+                time.sleep(micros / 10**6)
             traiter_message(evenement[1], evenement[2], controleur)
             maj_evenement(album, controleur)
+    vider_notes_actives(controleur)
 
 def traiter_message(message, num_piste, controleur):
     if len(message) == 1: # systeme
         son.message_systeme(controleur['midi'], message)
     elif len(message) == 3: # controle
-        son.message_controle(controleur['midi'], message)
+        maj_note_active(message, controleur)
+        if controleur['pistes actives'][num_piste]: # si on doit jouer un message de cette piste
+            son.message_controle(controleur['midi'], message)
     else: # meta
-        if message[0] == 1: ### karaoke
-            print(message[1], end='')
+        if message[0] == 1 and controleur['kar']: ### karaoke
+            controleur['texte karaoke'].append(message[1])
+            if not controleur['analyse']:
+                print(message[1], end='')
         elif message[0] == 81: # changement tempo
             maj_tempo(controleur, message[1])
+
 
 def maj_evenement(album, controleur):
     if controleur["evenement"] + 1 == len(album[controleur["titre"]]): # on a traité le dernier evenement de la piste
@@ -61,7 +84,13 @@ def maj_evenement(album, controleur):
             controleur["titre"] += 1 # piste suivante
             controleur["evenement"] = 0
     else: # continuer sur la même piste
-        controleur["evenement"] += 1   
+        controleur["evenement"] += 1  
+
+def vider_notes_actives(controleur):
+    for i in range(16):
+        for note in controleur['notes actives'][i]:
+            son.message_controle(controleur['midi'], [128 + i, note, 0])
+        controleur['notes actives'][i] = set([])
 
 if __name__ == "__main__":
     import pyanote.resume as res
