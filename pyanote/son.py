@@ -47,5 +47,6 @@ if __name__ == "__main__":
     time.sleep(1)
     message_controle(sortie_son, [0x80, 60, 120])
     message_controle(sortie_son, [0x80, 65, 120])
+    message_controle(sortie_son, [0x80, 72, 120]) # note off sur une note non jouée
     deconnecter(sortie_son)
 
