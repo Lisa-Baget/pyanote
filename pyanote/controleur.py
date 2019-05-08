@@ -5,6 +5,8 @@
 (C) Lisa Baget, 2018-2019 <li.baget@laposte.net>
 
 Ce module contient les fonctions permettant de jouer un album en utilisant un controleur.
+
+TODO: Tester le controleur dans un thread, enrichier le controleur
 """
 import time
 import pyanote.son as son
