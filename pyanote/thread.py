@@ -8,7 +8,6 @@ Ce module contient les fonctions permettant de controler la lecture d'un fichier
 """
 import pyanote.resume as res
 import pyanote.album as alb
-import pyanote.son as son
 import pyanote.controleur as cont
 import threading
 

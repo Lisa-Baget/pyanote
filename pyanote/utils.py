@@ -14,7 +14,7 @@ def verifier(fichier, mot_clé, msg_erreur):
 def lire_entier(fichier, nb_octets):
     entier = 0
     for i in range(nb_octets): #commence par poid fort
-        entier = entier + ord(fichier.read(1)) * 256**(nb_octets-i-1) #ord transforme 1 octet binaire en entier (
+        entier = entier + ord(fichier.read(1)) * 256**(nb_octets-i-1) # ord transforme 1 octet binaire en entier (
     return entier
 
 def lire_entier_variable(fichier):
@@ -28,11 +28,17 @@ def lire_entier_variable(fichier):
 def avancer(fichier, nb_octets):
     fichier.seek(nb_octets, 1) #1 a partir de la position ou l'on est / 0 debut fichier
 
-def lire_chaine(fichier, taille):
+def lire_chaine(fichier, taille, codages=['utf-8']): # UTF-8 par défaut
     chaine = fichier.read(taille)
-    for codage in ['utf-8', 'latin-1']: # rajouter si je trouve des fichiers ou ça suffit pas
+    for codage in codages: # rajouter si je trouve des fichiers ou ça suffit pas
         try:
             return chaine.decode(codage)
         except UnicodeDecodeError:
             pass
     return chaine
+
+def lire_liste_octets(fichier, taille):
+    liste = []
+    for __ in range(taille): # https://stackoverflow.com/questions/52792987/unused-variable-in-a-for-loop
+        liste.append(ord(fichier.read(1)))
+    return liste
