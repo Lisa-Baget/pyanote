@@ -25,6 +25,8 @@ def creer_resume(nom_fichier):
     return resume
 
 def lire_header(fichier, resume):
+    ''' Complete le resume avec les informations contenues dans le header.
+    '''
     utils.verifier(fichier, b'MThd', "Ce n'est pas un fichier Midi")
     taille_header = utils.lire_entier(fichier, 4) 
     resume["format"] = utils.lire_entier(fichier, 2)
@@ -34,12 +36,18 @@ def lire_header(fichier, resume):
     utils.avancer(fichier, taille_header - 6) # ces octets sont reserves aux constructeurs MIDI        
 
 def verifier_format(resume):
+    ''' Verifie si le format existe et si il est compatible avec le combre de pistes.
+
+    Retourne une erreur sinon.
+    '''
     if resume["format"] > 2:
         raise ValueError("Format MIDI inconnu.")
     if resume["format"] == 0 and resume["nb_pistes"] != 1:
         raise ValueError("Le nombre de pistes ne correspond pas au format MIDO 0")
 
 def lire_tempo(fichier):
+    ''' Retourne un dictionnaire qui code les informations du tempo.
+    '''
     octet1 = ord(fichier.read(1))
     octet2 = ord(fichier.read(1))
     if octet1 < 128: # bit de poids fort = 0
@@ -48,6 +56,9 @@ def lire_tempo(fichier):
         return {"metrique" : False, "smpte" : octet1 - 128, "tpf" : octet2}
 
 def creer_resume_piste(fichier, num_piste):
+    ''' Retourne un dictionnaire contenant les informations nécessaires à la lecture
+    de la piste num_piste.
+    '''
     utils.verifier(fichier, b'MTrk', "Ce n'est pas le début d'une piste")
     taille_piste = utils.lire_entier(fichier, 4)
     position = fichier.tell() #retourne le nombre d'octets passé depuis le début
