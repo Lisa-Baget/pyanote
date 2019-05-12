@@ -55,14 +55,17 @@ def calculer_index_prochain(liste_temps):
     return index
 
 if __name__ == "__main__":
-    print("Exemple avec des pistes simplifiées (les messages sont des lettres)")
-    print("Pistes simplifiées:")
+    print("=============================================================================")
+    print("Exemple de fusion avec des pistes simplifiées (les messages sont des lettres)")
+    print("=============================================================================")
     liste1 = [[0, 'B', 1], [10, 'A', 1], [20,  'S', 1]]
     liste2 = [[10, 'V', 2], [10, 'L', 2], [10, 'A', 2]]
     liste3 = [[0, 'R', 3], [10, 'O', 3], [0, ' ', 3], [10, 'I', 3]]
     print("Liste 1 = ", liste1)
     print("Liste 2 = ", liste2)
     print("Liste 3 = ", liste3)
-    print("==================== Fusion des 3 listes")
+    print("=============================================================================")
+    print("Résultat de la fusion:")
+    print("=============================================================================")
     print(fusionner_pistes([liste1, liste2, liste3]))
     
