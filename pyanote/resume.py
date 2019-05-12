@@ -69,5 +69,8 @@ def creer_resume_piste(fichier, num_piste):
 if __name__ == "__main__":
     # suivant l'environnement, peut avoir besoin de mettre un chemin different
     nom_fichier = 'fichiersMidi/Dave Brubeck - Take Five.mid'
+    print("=================================")
+    print("Exemple de résumé de fichier MIDI")
+    print("=================================")
     print(creer_resume(nom_fichier))
 
