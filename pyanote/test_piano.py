@@ -89,15 +89,6 @@ def montrer_texte(piano, note):
     except KeyError:
         pass
 
-
-
-
-
-
-
-
-
-
 if __name__ == "__main__":
     fenetre = tk.Tk()
     fenetre.title("py@Note")
