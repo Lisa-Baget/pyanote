@@ -112,8 +112,15 @@ if __name__ == "__main__":
     # suivant l'environnement, peut avoir besoin de mettre un chemin different
     nom_fichier = 'fichiersMidi/Dave Brubeck - Take Five.mid'
     resume = res.creer_resume(nom_fichier)
-    print('========= PISTE 0')
+    print("==========================================")
+    print("Exemples de pistes MIDI")
+    print("==========================================")
+    print('------------------------------------------')
+    print('* Piste 0')
+    print('------------------------------------------')
     print(creer_piste(resume, 0))
-    print('========= PISTE 1 (20 premiers evenements)')
+    print('------------------------------------------')
+    print('* Piste 1 (20 premiers evenements)')
+    print('------------------------------------------')
     print(creer_piste(resume, 2)[0:20])
     
