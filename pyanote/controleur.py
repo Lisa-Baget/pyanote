@@ -14,16 +14,16 @@ import pyanote.son as son
 def creer_controleur(resume, sortie_midi, analyse=False):
     controleur = {"titre": 0, "evenement": 0, "temps_ticks": 0, "temps_micros": 0,
                   "pause": False, "fin": False, "midi": sortie_midi, "notes actives": [],
-                  "canaux libres": [True] * 16, "pistes actives": [not analyse] * resume['nb_pistes'], 
-                  'analyse': analyse, 'kar': False}
-    if resume["tempo"]["metrique"]:
-        controleur["ticks/beat"] = resume["tempo"]["valeur"]
-        maj_tempo(controleur, 500000) # valeur par defaut, 120BPM
+                  "canaux libres": [True] * 16, "pistes actives": [not analyse] * resume['nb_pistes'],
+                  "vitesse" : 1, 'analyse': analyse, 'kar': False} 
+    if resume["tempo"]["metrique"]: # le seul cas qu'on sait faire
+        controleur["ticks/beat"] = resume["tempo"]["valeur"] # recuperation du ticks/beat, plus besoin du resume
+        maj_tempo(controleur, 500000) # valeur par defaut, 120BPM = 500000 microsecondes/beat
     else:
         raise TypeError("Ce type de tempo n'est pas encore traité")
     for __ in range(16): # pour chaque canal
         controleur["notes actives"].append(set([]))
-    if resume['fichier'][-3:] == 'kar':
+    if resume['fichier'][-3:] == 'kar': ### si le nom du fichier est "nom.kar", c'est un fichier karaoke
         controleur['kar'] = True
         controleur['texte karaoke'] = []
     return controleur
@@ -55,7 +55,7 @@ def jouer_album(album, controleur):
             evenement = album[controleur["titre"]][controleur["evenement"]]
             micros = maj_temps(controleur, evenement[0])
             if not controleur['analyse']:
-                time.sleep(micros / 10**6)
+                time.sleep((micros / 10**6) * controleur["vitesse"] )
             traiter_message(evenement[1], evenement[2], controleur)
             maj_evenement(album, controleur)
     vider_notes_actives(controleur)
@@ -79,7 +79,7 @@ def traiter_message(message, num_piste, controleur):
 def maj_evenement(album, controleur):
     if controleur["evenement"] + 1 == len(album[controleur["titre"]]): # on a traité le dernier evenement de la piste
         if controleur["titre"] + 1 == len(album): # on a traité la dernière piste
-            controleur["fin"] = True
+            controleur["fin"] = True ## faudrait peut etre prevoir une lecture en boucle
         else:
             controleur["titre"] += 1 # piste suivante
             controleur["evenement"] = 0
