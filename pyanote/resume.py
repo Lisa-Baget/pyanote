@@ -7,7 +7,7 @@
 Ce module contient les fonctions permettant de construire un dictionnaire qui contient les informations
 essentielles d'un fichier Midi, apres une lecture partielle.
 
-TODO: Comprendre le deuxieme format de tempo
+TODO: Comprendre le deuxieme format de tempo, mais il faut trouver un fichier exemple
 """
 import pyanote.utils as utils
 
@@ -32,18 +32,18 @@ def lire_header(fichier, resume):
     resume["format"] = utils.lire_entier(fichier, 2)
     resume["nb_pistes"] = utils.lire_entier(fichier, 2)
     verifier_format(resume) # test d'erreurs
-    resume["tempo"] = lire_tempo(fichier)
+    resume["tempo"] = lire_tempo(fichier) ## ici on va lire deux octets, le tempo est aussi un dictionnaire
     utils.avancer(fichier, taille_header - 6) # ces octets sont reserves aux constructeurs MIDI        
 
 def verifier_format(resume):
     ''' Verifie si le format existe et si il est compatible avec le combre de pistes.
 
-    Retourne une erreur sinon.
+    Renvoie une erreur sinon.
     '''
     if resume["format"] > 2:
         raise ValueError("Format MIDI inconnu.")
     if resume["format"] == 0 and resume["nb_pistes"] != 1:
-        raise ValueError("Le nombre de pistes ne correspond pas au format MIDO 0")
+        raise ValueError("Le nombre de pistes ne correspond pas au format MIDI 0")
 
 def lire_tempo(fichier):
     ''' Retourne un dictionnaire qui code les informations du tempo.
@@ -64,7 +64,7 @@ def creer_resume_piste(fichier, num_piste):
     position = fichier.tell() #retourne le nombre d'octets passé depuis le début
     utils.avancer(fichier, taille_piste - 3) # -3 pour verifier le meta "fin de piste"
     utils.verifier(fichier, b'\xFF\x2F\x00', "Ce n'est pas la fin d'une piste")
-    return {'id' : num_piste, 'début' : position, 'fin' : position + taille_piste}
+    return {'début' : position, 'fin' : position + taille_piste}
 
 if __name__ == "__main__":
     # suivant l'environnement, peut avoir besoin de mettre un chemin different

@@ -10,7 +10,7 @@ TODO: Tester le controleur dans un thread, enrichier le controleur
 """
 import time
 import pyanote.son as son
-import pyanote.album.album as alb
+import pyanote.album as alb
 import pyanote.test_controleur_vers_interface as ci
 
 def creer_controleur(nom_fichier, sortie_midi, widget=False, karaoke=True):
@@ -86,7 +86,7 @@ def jouer_album(controleur):
             micros = maj_temps(controleur, evenement[0])
             if not controleur['analyse']:
                 time.sleep((micros / 10**6) / controleur["vitesse"] )
-            traiter_message(evenement[1], evenement[2], controleur)
+            traiter_message(evenement[2], evenement[1], controleur)
             maj_evenement(album, controleur)
     vider_notes_actives(controleur)
 

@@ -12,7 +12,7 @@ import pyanote.utils as utils
 def creer_piste(resume, num_piste):
     ''' Retourne la liste de tous les evenements contenus dans une unique piste du fichier Midi décrit.
 
-    resume: le résumé d'un fichier Midi obtenu par pyanote.midi.fichier.resume.creer_resume(nom_fichier)
+    resume: le résumé d'un fichier Midi obtenu par pyanote.resume.creer_resume(nom_fichier)
 
     num_piste: le numero de la piste dont on veut les éléments
     '''
@@ -25,19 +25,21 @@ def creer_piste(resume, num_piste):
     sauvegarde = [None] # initialisation de la sauvegarde. liste car mutable 
     while fichier.tell() < resume_piste['fin']:
         piste.append(lire_evenement(fichier, num_piste, sauvegarde)) 
+    fichier.close()
     return piste
 
 def lire_evenement(fichier, num_piste, sauvegarde):
     ''' Retourne le prochain évènement de la piste num_piste lu dans le fichier.
 
-        Cet évènement est une liste de la forme [delta_temps, message, num_piste].
+        Cet évènement est une liste de la forme [delta_temps, num_piste, message].
 
     Le delta_temps (temps depuis le dernier evenement) est exprimé en ticks. 
-    Sa valeur en secondes dépend du header et des messages de changement de tempo.
+    Sa valeur en secondes dépend du tempo du header (en ticks/beat) et des messages de changement 
+    de tempo (en microseconds/beat).
     '''
     delta_temps = utils.lire_entier_variable(fichier) 
     message = lire_message(fichier, sauvegarde)
-    return [delta_temps, message, num_piste]
+    return [delta_temps, num_piste, message]
 
 def lire_message(fichier,sauvegarde):
     ''' Retourne le prochain message lu dans le fichier.
@@ -71,6 +73,7 @@ def lire_message_meta(fichier): # liste de longueur 2
     taille = utils.lire_entier_variable(fichier)
     if type_meta == 0x01: # texte sans format defini
         ### Rajouter des formats si des fichiers Karaoke marchent vraiment pas...
+        ### Faudra pas jouer des karaoke en japonais de toutes façons...
         valeur = utils.lire_chaine(fichier, taille, ['ascii', 'utf-8', 'latin-1']) # essai plusieurs format car on sait pas
     elif type_meta >= 0x02 and type_meta <= 0x07: # texte
         valeur = utils.lire_chaine(fichier, taille, ['ascii']) # la le format MIDI impose ascii

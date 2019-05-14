@@ -5,21 +5,23 @@
 (C) Lisa Baget, 2018-2019 <li.baget@laposte.net>
 
 Ce module contient les fonctions permettant de lire des informations simples dans un fichier binaire Midi.
+
+DONE
 """
 
 def verifier(fichier, mot_clé, msg_erreur):
-    ''' Verifie si mot_clé est dans le fichier, sinon envoie une erreur avec msg_erreur.
+    ''' Verifie si mot_clé (binaire) est dans le fichier, sinon envoie une erreur avec msg_erreur.
 
     Dans tous les cas avance de len(mot_clé) dans le fichier.  
     '''
-    if fichier.read(len(mot_clé)) != mot_clé:
-        raise TypeError(msg_erreur)
+    if fichier.read(len(mot_clé)) != mot_clé: ## lit le même nombre d'octets que dans mot_clé
+        raise TypeError(msg_erreur) ## crée une erreur si c'est pas la même chose
 
 def lire_entier(fichier, nb_octets):
     ''' Lit un entier codé sur nb_octets dans le fichier.
     '''
     entier = 0
-    for i in range(nb_octets): #commence par poid fort
+    for i in range(nb_octets): #commence par poids fort
         entier = entier + ord(fichier.read(1)) * 256**(nb_octets-i-1) # ord transforme 1 octet binaire en entier (
     return entier
 
@@ -30,7 +32,7 @@ def lire_entier_variable(fichier):
     '''
     entier = 0
     octet = ord(fichier.read(1))
-    while octet >= 128:
+    while octet >= 128: ## si le bit de poids fort est 1 il faut continuer
         entier = entier * 128 + octet - 128
         octet = ord(fichier.read(1))
     return entier * 128 + octet
@@ -56,7 +58,7 @@ def lire_chaine(fichier, taille, liste_codages=['utf-8']): # UTF-8 par défaut
     return chaine # si aucun codage a marché la chaine sera binaire
 
 def lire_liste_octets(fichier, taille):
-    ''' Lit taille entiers codés sur un octet et les stocke dans une liste.
+    ''' Lit taille entiers codés chacun sur un octet et les stocke dans une liste.
     '''
     liste = []
     for i in range(taille): 

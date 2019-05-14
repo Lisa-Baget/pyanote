@@ -16,6 +16,7 @@ Format 2: L'album contient plusieurs chansons, une pour chaque piste.
 """
 import pyanote.piste as piste
 import pyanote.resume as resume
+import heapq
 
 def creer_album(nom_fichier):
     ''' Cree un album, qui est un dictionnaire contenant une liste de chansons.
@@ -30,6 +31,31 @@ def creer_album(nom_fichier):
     return album
 
 def fusionner_pistes(liste_pistes):
+    for piste in liste_pistes:
+        transformer_temps_absolu(piste)
+    fusion = list(heapq.merge(*liste_pistes))
+    transformer_temps_relatif(fusion)
+    return fusion
+    
+def transformer_temps_absolu(piste):
+    temps = 0
+    for i in range(len(piste)):
+        evenement = piste[i]
+        evenement[0] = evenement[0] + temps
+        temps = evenement[0]
+        #evenement.append(i)
+        #evenement[2], evenement[3] = evenement[3], evenement[2]
+
+def transformer_temps_relatif(piste):
+    temps = 0
+    for evenement in piste:
+        nouveau_temps = evenement[0]
+        evenement[0] = evenement[0] - temps
+        temps = nouveau_temps
+        #evenement[2], evenement[3] = evenement[3], evenement[2]
+        #del evenement[-1]
+
+""" def fusionner_pistes(liste_pistes):
     ''' Fusionne les pistes d'une liste (chaque piste est une liste d'evenements) en une seule piste équivalente.
     '''
     liste_fusion = [] # c'est la liste qui contiendra les evenements
@@ -74,22 +100,24 @@ def calculer_index_prochain(liste_temps):
             index = i
     return index
 
-
+ """
 
 if __name__ == "__main__":
     print("=============================================================================")
     print("Exemple de fusion avec des pistes simplifiées (les messages sont des lettres)")
     print("=============================================================================")
-    liste1 = [[0, 'B', 1], [10, 'A', 1], [20,  'S', 1]]
-    liste2 = [[10, 'V', 2], [10, 'L', 2], [10, 'A', 2]]
-    liste3 = [[0, 'R', 3], [10, 'O', 3], [0, ' ', 3], [10, 'I', 3]]
+    liste1 = [[0, 1, 'B'], [10, 1, 'A'], [20, 1, 'S']]
+    liste2 = [[10, 2, 'V'], [10, 2, 'L'], [10, 2, 'A']]
+    liste3 = [[0, 3, 'R'], [10, 3, 'O'], [0, 3, ' '], [10, 3, 'I']]
     print("Liste 1 = ", liste1)
     print("Liste 2 = ", liste2)
     print("Liste 3 = ", liste3)
     print("=============================================================================")
     print("Résultat de la fusion:")
     print("=============================================================================")
-    print(fusionner_pistes([liste1, liste2, liste3]))
+    fusion = fusionner_pistes([liste1, liste2, liste3])
+    print(fusion)
+
     # suivant l'environnement, peut avoir besoin de mettre un chemin different
     nom_fichier = 'fichiersMidi/Dave Brubeck - Take Five.mid'
     print("===========================")
@@ -105,6 +133,21 @@ if __name__ == "__main__":
     ## Probleme ou pas? J'ai pas vu dans le format midi qu'elles devaient finir en meme temps
     print('Les 12 derniers evenements de la premiere chanson sont:')
     print(album["chansons"][0][-12:])
-    
+
+    """ import time
+    res=resume.creer_resume(nom_fichier)
+    liste_pistes = []
+    for i in range(res['nb_pistes']):
+        liste_pistes.append(piste.creer_piste(res, i))
+
+    t0 = time.time()
+    fusion = fusionner_pistes(liste_pistes)
+    t1 = time.time()
+    print("Temps pour fusionner", t1-t0)
+    t2 = time.time()
+    fusion = fusionner_pistes2(liste_pistes)
+    t3 = time.time()
+    print("Temps pour fusionner", t3-t2) """
+
 
         
