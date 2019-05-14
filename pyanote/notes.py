@@ -88,7 +88,7 @@ if __name__ == "__main__":
     else:
         ## C'est ce qui se passe avec des notes < 12 (octave = -1)
         ## il faudra le corriger si ça pose des problemes...
-        print("I have a bad feeling about this...")
+        print("OUPS")
 
     
 

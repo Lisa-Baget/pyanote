@@ -11,10 +11,10 @@ import pyanote.album as alb
 import pyanote.controleur as cont
 import threading
 
-def preparer_lecture(nom_fichier, sortie_midi):
+def preparer_lecture(nom_fichier, sortie_midi, widget=None):
     resume = res.creer_resume(nom_fichier)
     album = alb.creer_album(resume)
-    controleur = cont.creer_controleur(resume, sortie_midi)
+    controleur = cont.creer_controleur(nom_fichier, resume, sortie_midi, False, widget)
     controleur["thread"] = threading.Thread(None, cont.jouer_album, None, [album, controleur])
     return controleur
 

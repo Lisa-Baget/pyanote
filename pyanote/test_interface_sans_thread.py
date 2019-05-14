@@ -16,7 +16,7 @@ def Lire():
     resume = res.creer_resume(nom)
     album = alb.creer_album(resume)
     midi = son.connecter_sortie()
-    controleur = controle.creer_controleur(resume, midi)
+    controleur = controle.creer_controleur(nom, resume, midi)
     controle.jouer_album(album, controleur)
 
 fenetre = tkinter.Tk()

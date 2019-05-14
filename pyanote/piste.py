@@ -9,7 +9,6 @@ dans une unique piste d'un fichier Midi.
 """
 import pyanote.utils as utils
 
-
 def creer_piste(resume, num_piste):
     ''' Retourne la liste de tous les evenements contenus dans une unique piste du fichier Midi décrit.
 
@@ -105,7 +104,10 @@ def lire_message_controle(fichier, status, sauvegarde): # liste de longueur 3
         arg2 = 0
     else: # instructions à deux arguments
         arg2 = ord(fichier.read(1))
-    return [octet, arg1, arg2]
+    if octet // 16 == 9 and arg2 == 0: ## un note on avec velocité 0 est en fait un note off
+        return [8*16 + octet%16, arg1, 0] ## on fait un vrai note off, plus facile dans controleur
+    else:
+        return [octet, arg1, arg2]
 
 if __name__ == "__main__":
     import pyanote.resume as res
@@ -120,7 +122,7 @@ if __name__ == "__main__":
     print('------------------------------------------')
     print(creer_piste(resume, 0))
     print('------------------------------------------')
-    print('* Piste 1 (20 premiers evenements)')
+    print('* Piste 2 (20 premiers evenements)')
     print('------------------------------------------')
     print(creer_piste(resume, 2)[0:20])
     

@@ -4,8 +4,9 @@
 
 (C) Lisa Baget, 2018-2019 <li.baget@laposte.net>
 
-Ce module contient les fonctions permettant de récupérer sous forme d'album tous les evenements contenus
-dans un fichier Midi. L'album est toujours une liste de chansons, c'est a dire une liste de liste d'evenements.
+Ce module contient les fonctions permettant de récupérer sous forme d'album toutes les informations contenues
+dans un fichier Midi. L'album est un dictionnaire qui contient toutes les informations d'un resume, plus une 
+liste de chansons, c'est a dire une liste de listes d'evenements.
 
 Format 0: L'album ne contient qu'une chanson, qui est exactement la piste 0 
 
@@ -14,36 +15,96 @@ Format 1: L'album ne contient qu'une chanson, qui est obtenue en fusionnant tout
 Format 2: L'album contient plusieurs chansons, une pour chaque piste.
 """
 import pyanote.piste as piste
-import pyanote.fusion as fusion
+import pyanote.resume as resume
 
-def creer_album(resume):
-    ''' Cree un album, qui est une liste de chansons.
+def creer_album(nom_fichier):
+    ''' Cree un album, qui est un dictionnaire contenant une liste de chansons.
     '''
-    chansons = []
-    for num_piste in range(resume['nb_pistes']):
-        chansons.append(piste.creer_piste(resume, num_piste))
-    if resume['format'] == 1:
-        return [fusion.fusionner_pistes(chansons)]
-    else:
-        return chansons
+    album = resume.creer_resume(nom_fichier)
+    ## on sauvagarde dans l'album les infos du résumé qui seront importantes pour la lecture
+    album["chansons"] = []
+    for num_piste in range(album['nb_pistes']):
+        album["chansons"].append(piste.creer_piste(album, num_piste))
+    if album['format'] == 1:
+        album["chansons"] = [fusionner_pistes(album["chansons"])]
+    return album
+
+def fusionner_pistes(liste_pistes):
+    ''' Fusionne les pistes d'une liste (chaque piste est une liste d'evenements) en une seule piste équivalente.
+    '''
+    liste_fusion = [] # c'est la liste qui contiendra les evenements
+    # Si liste_indexs[i] = j, ça veut dire que le prochain candidat de la piste i est le j-eme evenement
+    # de cette piste, c'est à dire liste_pistes[i][j]
+    liste_indexs = [0] * len(liste_pistes)
+    ## Si liste_temps[i] = t, ça veut dire que le prochain evenement de la piste i doit se passer au temps absolu t.
+    liste_temps = []
+    for num_piste in range(len(liste_pistes)): # initialisation de la liste_temps avec les delta temps des premiers evenements de chaque piste
+        evenement = lire_evenement(liste_pistes, num_piste, liste_indexs) # premier evenement de la piste numero num_piste
+        liste_temps.append(evenement[0])
+    temps_courant = 0
+    num_piste = calculer_index_prochain(liste_temps)
+    infini = float('inf') # infini https://stackoverflow.com/questions/7604966/maximum-and-minimum-values-for-ints
+    while liste_temps[num_piste] < infini: # si le plus petit temps est infini c'est qu'on a tout fini
+        delta_temps = liste_temps[num_piste] - temps_courant # calcul de l'intervalle de temps pour cet evenement
+        temps_courant = liste_temps[num_piste] # le nouveau temps courant est le temps absolu de l'evenement
+        evenement = lire_evenement(liste_pistes, num_piste, liste_indexs) #recupeper l'evenement
+        liste_fusion.append([delta_temps, evenement[1], evenement[2]]) # le rajouter à la liste avec le nouveau delta-temps
+        if liste_indexs[num_piste] + 1 == len(liste_pistes[num_piste]): # on a fini cette liste
+            liste_temps[num_piste] = infini # comme ça il ne sera choisi que quand toutes les pistes sont finies
+        else: # on doit continuer donc mise a jour de liste_indexs et liste_temps
+            liste_indexs[num_piste] = liste_indexs[num_piste] + 1 # le suivant dans la piste
+            prochain_evenement = lire_evenement(liste_pistes, num_piste, liste_indexs) # correspond au nouvel index
+            liste_temps[num_piste] = temps_courant + prochain_evenement[0] # nouveau temps absolu
+        num_piste = calculer_index_prochain(liste_temps) # calcul du prochain avant de recommencer la boucle
+    return liste_fusion
+
+def lire_evenement(liste_pistes, num_piste, liste_indexs):
+    ''' Retourne le prochain evenement dans la piste num_piste (liste_pistes[num_piste]), en fonction des informations dans liste_indexs.
+    '''
+    return liste_pistes[num_piste][liste_indexs[num_piste]]
+
+def calculer_index_prochain(liste_temps):
+    ''' Retourner l'index du plus petit element dans liste_temps.
+
+    C'est la même que dans une fonction de tri sauf qu'on retourne la position et pas l'element.
+    '''
+    index = 0
+    for i in range(1, len(liste_temps)):
+        if liste_temps[i] < liste_temps[index]:
+            index = i
+    return index
+
+
 
 if __name__ == "__main__":
-    import pyanote.resume as res
+    print("=============================================================================")
+    print("Exemple de fusion avec des pistes simplifiées (les messages sont des lettres)")
+    print("=============================================================================")
+    liste1 = [[0, 'B', 1], [10, 'A', 1], [20,  'S', 1]]
+    liste2 = [[10, 'V', 2], [10, 'L', 2], [10, 'A', 2]]
+    liste3 = [[0, 'R', 3], [10, 'O', 3], [0, ' ', 3], [10, 'I', 3]]
+    print("Liste 1 = ", liste1)
+    print("Liste 2 = ", liste2)
+    print("Liste 3 = ", liste3)
+    print("=============================================================================")
+    print("Résultat de la fusion:")
+    print("=============================================================================")
+    print(fusionner_pistes([liste1, liste2, liste3]))
     # suivant l'environnement, peut avoir besoin de mettre un chemin different
     nom_fichier = 'fichiersMidi/Dave Brubeck - Take Five.mid'
     print("===========================")
     print("Exemple de création d'album")
     print("===========================")
-    resume = res.creer_resume(nom_fichier)
-    album = creer_album(resume)
-    print("Le fichier contient", resume['nb_pistes'], "pistes.")
-    print("L'album contient", len(album), "titre(s).")
+    album = creer_album(nom_fichier)
+    print("Le fichier contient", album['nb_pistes'], "pistes.")
+    print("L'album contient", len(album["chansons"]), "chanson(s).")
     print('---------------------------')
-    for i in range(len(album)):
-        print("La taille du titre", i, "est", len(album[i]), "evenements.")
+    for i in range(len(album["chansons"])):
+        print("La taille de la chanson", i, "est", len(album["chansons"][i]), "evenements.")
     ## Ce test montre que certaines pistes se sont arretees avant la fin
+    ## Probleme ou pas? J'ai pas vu dans le format midi qu'elles devaient finir en meme temps
     print('Les 12 derniers evenements de la premiere chanson sont:')
-    print(album[0][-12:])
+    print(album["chansons"][0][-12:])
     
 
         

@@ -59,6 +59,34 @@ def lire_liste_octets(fichier, taille):
     ''' Lit taille entiers codés sur un octet et les stocke dans une liste.
     '''
     liste = []
-    for __ in range(taille): # https://stackoverflow.com/questions/52792987/unused-variable-in-a-for-loop
+    for i in range(taille): 
         liste.append(ord(fichier.read(1)))
     return liste
+
+if __name__ == "__main__":
+    nom_fichier = 'fichiersMidi/Dave Brubeck - Take Five.mid'
+    print("=========================================================")
+    print("Test du fichier", nom_fichier)
+    print("=========================================================")
+    fichier = open(nom_fichier, 'rb')
+    print("Verification du MThd: ", end="")
+    try:
+        verifier(fichier, b'MThd', "")
+        print("OK")
+    except TypeError:
+        print("Erreur")
+    taille_header = lire_entier(fichier, 4)
+    print("Taille du header: ", taille_header, "octets")
+    avancer(fichier, taille_header)
+    print("Verification du premier MTrk: ", end="")
+    try:
+        verifier(fichier, b'MTrk', "")
+        print("OK")
+    except TypeError:
+        print("Erreur")
+    taille_piste = lire_entier(fichier, 4)
+    print("Taille de la première piste: ", taille_piste, "octets")
+    delta_time = lire_entier_variable(fichier)
+    print("Valeur du premier delta time:", delta_time, "ticks")
+
+

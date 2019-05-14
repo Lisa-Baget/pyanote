@@ -10,43 +10,73 @@ TODO: Tester le controleur dans un thread, enrichier le controleur
 """
 import time
 import pyanote.son as son
+import pyanote.album.album as alb
+import pyanote.test_controleur_vers_interface as ci
 
-def creer_controleur(resume, sortie_midi, analyse=False):
-    controleur = {"titre": 0, "evenement": 0, "temps_ticks": 0, "temps_micros": 0,
-                  "pause": False, "fin": False, "midi": sortie_midi, "notes actives": [],
-                  "canaux libres": [True] * 16, "pistes actives": [not analyse] * resume['nb_pistes'],
-                  "vitesse" : 1, 'analyse': analyse, 'kar': False} 
-    if resume["tempo"]["metrique"]: # le seul cas qu'on sait faire
-        controleur["ticks/beat"] = resume["tempo"]["valeur"] # recuperation du ticks/beat, plus besoin du resume
-        maj_tempo(controleur, 500000) # valeur par defaut, 120BPM = 500000 microsecondes/beat
-    else:
-        raise TypeError("Ce type de tempo n'est pas encore traité")
-    for __ in range(16): # pour chaque canal
-        controleur["notes actives"].append(set([]))
-    if resume['fichier'][-3:] == 'kar': ### si le nom du fichier est "nom.kar", c'est un fichier karaoke
-        controleur['kar'] = True
-        controleur['texte karaoke'] = []
+def creer_controleur(nom_fichier, sortie_midi, widget=False, karaoke=True):
+    album = alb.creer_album(nom_fichier)
+    controleur = {"fichier": nom_fichier, "midi": sortie_midi, "widget": widget, "chansons": album["chansons"]}
+    controleur["nom"] = nom_fichier.split('/')[-1] # decoupe le chemin, le dernier c'est le nom du fichier
+    controleur["ticks/beat"] = initialiser_tempo(album["tempo"]) ## peut faire une erreur si tempo de type 2
+    controleur["micros/tick"] = maj_tempo(controleur, (60 / 120) * 10**6) # valeur par defaut, 120BPM -> 500000 microsecondes/beat
+    controleur["vitesse"] = 1 ## pour controler vitesse de lecture
+    controleur["pistes actives"] = [True] * album['nb_pistes']
+    initialiser_controleur(controleur)
+    controleur["notes actives"] = initialiser_notes_actives()
+    controleur["analyse"] = False
+    controleur["canaux libres"] = [True] * 16
+    controleur['kar'] = karaoke and controleur["nom"][-3:] == 'kar' # vrai si j'ai dit vrai et que c'est un fichier kar
+    controleur['texte karaoke'] = []
     return controleur
 
+def initialiser_tempo(dico_tempo):
+    if dico_tempo["metrique"]: # le seul cas qu'on sait faire
+        return dico_tempo["valeur"] # recuperation du ticks/beat, plus besoin du resume
+    else:
+        raise TypeError("Ce type de tempo n'est pas encore traité")
+
+def initialiser_controleur(controleur):
+    controleur["titre"] = 0
+    controleur["evenement"] = 0
+    controleur["temps_ticks"] = 0
+    controleur["temps_micros"] =  0
+    controleur["seconde_transmise"] = 0
+    controleur["fin"] = False
+    controleur["pause"] = False
+
+def initialiser_notes_actives():
+    notes_actives = []
+    for i in range(16): # pour chaque canal
+        notes_actives.append(set([]))
+    return notes_actives
+
+
 def maj_tempo(controleur, tempo):
-    controleur["micros/tick"] = tempo / controleur["ticks/beat"]
+    ### le ticks/beat dans le controleur est ce qui a été lu dans le header
+    ### le tempo envoyé par les messages meta est en microsecondes/beat
+    return tempo / controleur["ticks/beat"] # Le retour est en microsecondes / tick 
 
 def maj_temps(controleur, ticks):
     controleur["temps_ticks"] += ticks
     micros = ticks * controleur["micros/tick"]
     controleur["temps_micros"] += micros
+    secondes = controleur["temps_micros"] // 10**6
+    if controleur['widget'] and secondes > controleur["seconde_transmise"]:
+        controleur["seconde_transmise"] = secondes
+        controleur['widget'].after(0, ci.maj_temps, controleur['widget'], secondes)
     return micros
 
 def maj_note_active(message, controleur):
-    if message[0] // 16 == 8 or (message[0] // 16 == 9 and message[2] == 3): # note off
+    if message[0] // 16 == 8: # note off
         controleur["notes actives"][message[0] % 16].discard(message[1])
-    elif message[0] // 16 == 9: # vrai note on
+    elif message[0] // 16 == 9: # vrai note on (on a enlevé les faux notes on dans piste.py)
         canal = message[0] % 16
         if canal != 9: # on n'a pas besoin d'arreter les notes du canal batterie
             controleur['canaux libres'][canal] = False
             controleur["notes actives"][canal].add(message[1])
 
-def jouer_album(album, controleur):
+def jouer_album(controleur):
+    album = controleur["chansons"]
     while (not controleur['fin']):
         if controleur['pause']:
             vider_notes_actives(controleur)
@@ -55,7 +85,7 @@ def jouer_album(album, controleur):
             evenement = album[controleur["titre"]][controleur["evenement"]]
             micros = maj_temps(controleur, evenement[0])
             if not controleur['analyse']:
-                time.sleep((micros / 10**6) * controleur["vitesse"] )
+                time.sleep((micros / 10**6) / controleur["vitesse"] )
             traiter_message(evenement[1], evenement[2], controleur)
             maj_evenement(album, controleur)
     vider_notes_actives(controleur)
@@ -75,7 +105,6 @@ def traiter_message(message, num_piste, controleur):
         elif message[0] == 81: # changement tempo
             maj_tempo(controleur, message[1])
 
-
 def maj_evenement(album, controleur):
     if controleur["evenement"] + 1 == len(album[controleur["titre"]]): # on a traité le dernier evenement de la piste
         if controleur["titre"] + 1 == len(album): # on a traité la dernière piste
@@ -93,17 +122,13 @@ def vider_notes_actives(controleur):
         controleur['notes actives'][i] = set([])
 
 if __name__ == "__main__":
-    import pyanote.resume as res
-    import pyanote.album as alb
     import tkinter
     from tkinter.filedialog import askopenfilename
     root = tkinter.Tk()
     root.withdraw() # https://stackoverflow.com/questions/9319317/quick-and-easy-file-dialog-in-python
     nom_fichier = askopenfilename()
-    resume = res.creer_resume(nom_fichier)
-    album = alb.creer_album(resume)
     son_midi = son.connecter_sortie()
-    controleur = creer_controleur(resume, son_midi)
-    jouer_album(album, controleur)
+    controleur = creer_controleur(nom_fichier, son_midi)
+    jouer_album(controleur)
     son.deconnecter(son_midi)
 
