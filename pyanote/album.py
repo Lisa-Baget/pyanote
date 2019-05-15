@@ -19,10 +19,9 @@ import pyanote.resume as resume
 import heapq
 
 def creer_album(nom_fichier):
-    ''' Cree un album, qui est un dictionnaire contenant une liste de chansons.
+    ''' Cree un album, qui est un résumé augmenté par une liste de chansons.
     '''
-    album = resume.creer_resume(nom_fichier)
-    ## on sauvagarde dans l'album les infos du résumé qui seront importantes pour la lecture
+    album = resume.creer_resume(nom_fichier) # dans l'album il y a toutes les infos du résumé
     album["chansons"] = []
     for num_piste in range(album['nb_pistes']):
         album["chansons"].append(piste.creer_piste(album, num_piste))
@@ -31,76 +30,42 @@ def creer_album(nom_fichier):
     return album
 
 def fusionner_pistes(liste_pistes):
+    ''' Fusionne les pistes d'une liste (chaque piste est une liste d'evenements) en une seule piste équivalente.
+    '''
     for piste in liste_pistes:
         transformer_temps_absolu(piste)
-    fusion = list(heapq.merge(*liste_pistes))
+    ##si j'ai L = [a, b, c], la fonction f(L) appelle f avec un seul argument qui est la liste L
+    ## mais la fonction f(*L) appelle f avec tous les elements de la liste, et est donc equivalente
+    ## à f(a, b, c)
+    fusion = list(heapq.merge(*liste_pistes)) # https://www.geeksforgeeks.org/merge-two-sorted-arrays-python-using-heapq/
     transformer_temps_relatif(fusion)
     return fusion
     
 def transformer_temps_absolu(piste):
+    ''' Transforme les delta_temps d'une piste en temps absolu.
+    
+    Par exemple [[0, 0, 'A'], [10, 0, 'B'], [0, 0, 'C'], [20, 0, 'D']] deviendra
+    [[0, 0, 'A'], [10, 0, 'B'], [10, 0, 'C'], [30, 0, 'D']]. Ne crée pas une autre piste
+    mais la modifie.
+    '''
     temps = 0
-    for i in range(len(piste)):
-        evenement = piste[i]
+    for evenement in piste:
         evenement[0] = evenement[0] + temps
         temps = evenement[0]
-        #evenement.append(i)
-        #evenement[2], evenement[3] = evenement[3], evenement[2]
 
 def transformer_temps_relatif(piste):
+    ''' Transforme une piste où les temps sont donnés en temps absolus pour que ces temps
+    deviennent des delta_temps (temps relatifs).
+
+    Par exemple [[0, 0, 'A'], [10, 0, 'B'], [10, 0, 'C'], [30, 0, 'D']] deviendra
+    [[0, 0, 'A'], [10, 0, 'B'], [0, 0, 'C'], [20, 0, 'D']]. Ne crée pas une autre piste
+    mais la modifie.
+    '''
     temps = 0
     for evenement in piste:
         nouveau_temps = evenement[0]
         evenement[0] = evenement[0] - temps
         temps = nouveau_temps
-        #evenement[2], evenement[3] = evenement[3], evenement[2]
-        #del evenement[-1]
-
-""" def fusionner_pistes(liste_pistes):
-    ''' Fusionne les pistes d'une liste (chaque piste est une liste d'evenements) en une seule piste équivalente.
-    '''
-    liste_fusion = [] # c'est la liste qui contiendra les evenements
-    # Si liste_indexs[i] = j, ça veut dire que le prochain candidat de la piste i est le j-eme evenement
-    # de cette piste, c'est à dire liste_pistes[i][j]
-    liste_indexs = [0] * len(liste_pistes)
-    ## Si liste_temps[i] = t, ça veut dire que le prochain evenement de la piste i doit se passer au temps absolu t.
-    liste_temps = []
-    for num_piste in range(len(liste_pistes)): # initialisation de la liste_temps avec les delta temps des premiers evenements de chaque piste
-        evenement = lire_evenement(liste_pistes, num_piste, liste_indexs) # premier evenement de la piste numero num_piste
-        liste_temps.append(evenement[0])
-    temps_courant = 0
-    num_piste = calculer_index_prochain(liste_temps)
-    infini = float('inf') # infini https://stackoverflow.com/questions/7604966/maximum-and-minimum-values-for-ints
-    while liste_temps[num_piste] < infini: # si le plus petit temps est infini c'est qu'on a tout fini
-        delta_temps = liste_temps[num_piste] - temps_courant # calcul de l'intervalle de temps pour cet evenement
-        temps_courant = liste_temps[num_piste] # le nouveau temps courant est le temps absolu de l'evenement
-        evenement = lire_evenement(liste_pistes, num_piste, liste_indexs) #recupeper l'evenement
-        liste_fusion.append([delta_temps, evenement[1], evenement[2]]) # le rajouter à la liste avec le nouveau delta-temps
-        if liste_indexs[num_piste] + 1 == len(liste_pistes[num_piste]): # on a fini cette liste
-            liste_temps[num_piste] = infini # comme ça il ne sera choisi que quand toutes les pistes sont finies
-        else: # on doit continuer donc mise a jour de liste_indexs et liste_temps
-            liste_indexs[num_piste] = liste_indexs[num_piste] + 1 # le suivant dans la piste
-            prochain_evenement = lire_evenement(liste_pistes, num_piste, liste_indexs) # correspond au nouvel index
-            liste_temps[num_piste] = temps_courant + prochain_evenement[0] # nouveau temps absolu
-        num_piste = calculer_index_prochain(liste_temps) # calcul du prochain avant de recommencer la boucle
-    return liste_fusion
-
-def lire_evenement(liste_pistes, num_piste, liste_indexs):
-    ''' Retourne le prochain evenement dans la piste num_piste (liste_pistes[num_piste]), en fonction des informations dans liste_indexs.
-    '''
-    return liste_pistes[num_piste][liste_indexs[num_piste]]
-
-def calculer_index_prochain(liste_temps):
-    ''' Retourner l'index du plus petit element dans liste_temps.
-
-    C'est la même que dans une fonction de tri sauf qu'on retourne la position et pas l'element.
-    '''
-    index = 0
-    for i in range(1, len(liste_temps)):
-        if liste_temps[i] < liste_temps[index]:
-            index = i
-    return index
-
- """
 
 if __name__ == "__main__":
     print("=============================================================================")
@@ -133,21 +98,6 @@ if __name__ == "__main__":
     ## Probleme ou pas? J'ai pas vu dans le format midi qu'elles devaient finir en meme temps
     print('Les 12 derniers evenements de la premiere chanson sont:')
     print(album["chansons"][0][-12:])
-
-    """ import time
-    res=resume.creer_resume(nom_fichier)
-    liste_pistes = []
-    for i in range(res['nb_pistes']):
-        liste_pistes.append(piste.creer_piste(res, i))
-
-    t0 = time.time()
-    fusion = fusionner_pistes(liste_pistes)
-    t1 = time.time()
-    print("Temps pour fusionner", t1-t0)
-    t2 = time.time()
-    fusion = fusionner_pistes2(liste_pistes)
-    t3 = time.time()
-    print("Temps pour fusionner", t3-t2) """
 
 
         

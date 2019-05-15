@@ -32,7 +32,8 @@ def lire_header(fichier, resume):
     resume["format"] = utils.lire_entier(fichier, 2)
     resume["nb_pistes"] = utils.lire_entier(fichier, 2)
     verifier_format(resume) # test d'erreurs
-    resume["tempo"] = lire_tempo(fichier) ## ici on va lire deux octets, le tempo est aussi un dictionnaire
+    resume["ticks/noire"] = utils.lire_entier(fichier, 2)
+    verifier_tempo(resume)
     utils.avancer(fichier, taille_header - 6) # ces octets sont reserves aux constructeurs MIDI        
 
 def verifier_format(resume):
@@ -45,15 +46,11 @@ def verifier_format(resume):
     if resume["format"] == 0 and resume["nb_pistes"] != 1:
         raise ValueError("Le nombre de pistes ne correspond pas au format MIDI 0")
 
-def lire_tempo(fichier):
-    ''' Retourne un dictionnaire qui code les informations du tempo.
+def verifier_tempo(resume):
+    ''' Renvoie une erreur si le tempo est au format SMPTE.
     '''
-    octet1 = ord(fichier.read(1))
-    octet2 = ord(fichier.read(1))
-    if octet1 < 128: # bit de poids fort = 0
-        return {"metrique" : True, "valeur" : 256 * octet1 + octet2}
-    else: ### Dans ce cas pas compris comment s'en servir (pas de fichier exemple)
-        return {"metrique" : False, "smpte" : octet1 - 128, "tpf" : octet2}
+    if resume["ticks/noire"] >= 128*256: # le premier bit du premier octet est à 1
+        raise ValueError("Pyanote ne prend pas en compte le tempo au format SMPTE.")
 
 def creer_resume_piste(fichier, num_piste):
     ''' Retourne un dictionnaire contenant les informations nécessaires à la lecture
