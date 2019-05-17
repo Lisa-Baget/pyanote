@@ -11,14 +11,10 @@ import pyanote.utils as utils
 
 def creer_piste(resume, num_piste):
     ''' Retourne la liste de tous les evenements contenus dans une unique piste du fichier Midi décrit.
-
-    resume: le résumé d'un fichier Midi obtenu par pyanote.resume.creer_resume(nom_fichier)
-
-    num_piste: le numero de la piste dont on veut les éléments
     '''
     piste = []
     fichier = open(resume["fichier"], 'rb')
-    resume_piste = resume['pistes'][num_piste]
+    resume_piste = resume['resumes_pistes'][num_piste]
     utils.avancer(fichier, resume_piste['début'])
     # Le mécanisme de sauvegarde est pour le RUNNING STATUS dans la specification.
     # Bonne explications dans http://www.gweep.net/~prefect/eng/reference/protocol/midispec.html
@@ -59,12 +55,12 @@ def lire_message(fichier,sauvegarde):
     else: # Controle
         return lire_message_controle(fichier, status, sauvegarde)
 
-def lire_message_systeme(fichier, octet): # liste de longueur 1
+def lire_message_systeme(fichier, status): # liste de longueur 1
     ''' Retourne une liste [chaine_binaire]
     '''
     taille = utils.lire_entier_variable(fichier)
     valeur = fichier.read(taille)
-    return [octet + valeur]
+    return [status + valeur] # il faut mettre le status sinon ça fait erreur dans midi
 
 def lire_message_meta(fichier): # liste de longueur 2
     ''' Retourne une liste [type, valeur]. Ce qui est stocké dans la valeur dépend du type.

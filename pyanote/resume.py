@@ -17,10 +17,10 @@ def creer_resume(nom_fichier):
        Voir exemple en fin de fichier pour la structure du dictionnaire.
     '''
     fichier = open(nom_fichier, "rb") # r = read b = binaire
-    resume = {"fichier": nom_fichier, "pistes": []} # dictionnaire
+    resume = {"fichier": nom_fichier, "resumes_pistes": []} # dictionnaire
     lire_header(fichier, resume) # remplissage du dico avec infos du header
     for numero_piste in range(resume['nb_pistes']):
-        resume["pistes"].append(creer_resume_piste(fichier, numero_piste))
+        resume["resumes_pistes"].append(creer_resume_piste(fichier, numero_piste))
     fichier.close()
     return resume
 
@@ -61,7 +61,7 @@ def creer_resume_piste(fichier, num_piste):
     position = fichier.tell() #retourne le nombre d'octets passé depuis le début
     utils.avancer(fichier, taille_piste - 3) # -3 pour verifier le meta "fin de piste"
     utils.verifier(fichier, b'\xFF\x2F\x00', "Ce n'est pas la fin d'une piste")
-    return {'début' : position, 'fin' : position + taille_piste}
+    return {'id' : num_piste, 'début' : position, 'fin' : position + taille_piste}
 
 if __name__ == "__main__":
     # suivant l'environnement, peut avoir besoin de mettre un chemin different
