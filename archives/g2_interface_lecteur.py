@@ -1,3 +1,14 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""g2_interface_lecteur
+
+(C) Lisa Baget, 2018-2019 <li.baget@laposte.net>
+
+Interface graphique pour lecture de fichiers Midi.
+
+TO DO: acceleration, utilisation de la barre de defilement, retour arriere
+"""
+
 import tkinter as tk
 from tkinter.filedialog import askopenfilename
 import pyanote.resume as res

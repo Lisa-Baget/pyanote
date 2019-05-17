@@ -14,8 +14,8 @@ import pyanote.son as son
 import pyanote.accords as accords
 import pyanote.notes as notes
 
-def creer_piano(maitre, midi, canal, octave_debut, nb_octaves, w_touche=20, h_touche=100, couleurs=["ivory", "ghostwhite", "black", "gray", "lightgray", "silver"]):
-    canvas = tk.Canvas(maitre, width = 7 * nb_octaves * w_touche, height = h_touche)
+def creer_piano(contenant, midi, canal, octave_debut, nb_octaves, w_touche=20, h_touche=100, couleurs=["ivory", "ghostwhite", "black", "gray", "lightgray", "silver"]):
+    canvas = tk.Canvas(contenant, width = (7 * w_touche) * nb_octaves, height = h_touche)
     canvas.touches = {} # le piano va avoir un dictionnaire {note: touche} pour pouvoir lui dire de changer l'apparence d'une touche en fonction de la note
     canvas.midi = midi
     canvas.canal = canal

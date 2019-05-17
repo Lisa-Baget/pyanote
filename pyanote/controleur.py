@@ -118,7 +118,6 @@ def executer_modificateurs_controles(cle, *args):
     for fonction in args[0][cle]: ## args[0] c'est toujours le controleur
         fonction(*args)
 
-
 if __name__ == "__main__":
     import tkinter
     from tkinter.filedialog import askopenfilename
