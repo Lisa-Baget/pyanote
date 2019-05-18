@@ -3,12 +3,11 @@ import pyanote.notes
 import pyanote.son
 import time
 
-
 def creer_clavier(emplacement, sortie_midi, octave_debut, nb_octaves, params):
     largeur_octave = params['blanche']['w'] * 7
     clavier = tk.Canvas(emplacement, width = nb_octaves * largeur_octave, height = params['blanche']['h'])
-    clavier.touches = {}
-    clavier.midi = sortie_midi
+    clavier.touches, clavier.midi = {}, sortie_midi
+    clavier.canal, clavier.volume, clavier.delai_arret = 0, 200, 250
     note_debut = pyanote.notes.note_vers_nombre("C" + str(octave_debut))
     for i in range(nb_octaves):
         creer_octave(clavier, largeur_octave * i, note_debut + i * 12, params)
@@ -32,15 +31,21 @@ def creer_touche(clavier, note, x, param):
     touche.bind("<ButtonRelease-1>", relacher_touche)
 
 def appuyer_touche(evenement):
-    pyanote.son.message_controle(evenement.widget.master.midi, [0x90, evenement.widget.note, 255])
+    note = evenement.widget.note
+    clavier = evenement.widget.master
+    jouer_note(clavier, note)
+
+def jouer_note(clavier, note):
+    pyanote.son.message_controle(clavier.midi, [0x90 + clavier.canal, note, clavier.volume])
 
 def relacher_touche(evenement):
-    evenement.widget.after(250, pyanote.son.message_controle,  evenement.widget.master.midi, [0x80, evenement.widget.note, 0])
+    clavier = evenement.widget.master
+    note = evenement.widget.note
+    evenement.widget.after(250, arreter_note, clavier, note)
+
+def arreter_note(clavier, note):
+    pyanote.son.message_controle(clavier.midi, [0x80 + clavier.canal, note, 0])
     
-
-
-
-
 if __name__ == "__main__":
     fenetre = tk.Tk()
     fenetre.title = "py@note" 
