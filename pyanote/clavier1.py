@@ -28,7 +28,7 @@ def creer_octave(clavier, x_octave, note_debut, params):
     construire_racourcis_clavier(octave, note_debut)
 
 def construire_racourcis_clavier(octave, note_debut):
-    touches_ordi = ['q', 'z', 's', 'e', 'd', 'f', 't', 'g', 'y', 'h']
+    touches_ordi = ['q', 'z', 's', 'e', 'd', 'f', 't', 'g', 'y', 'h', 'u', 'j']
     octave.notes = {}
     for i in range(len(touches_ordi)):
         octave.notes[touches_ordi[i]] = note_debut + i
@@ -53,7 +53,8 @@ def appuyer_touche_souris(evenement):
 def appuyer_touche_clavier(evenement):
     ### probleme ici, l'evenement est lancé plein de fois pendant que la touche est appuyée
     ### ca a l'air normal: https://stackoverflow.com/questions/33088597/python-tkinter-keypress-event-trigger-once-hold-vs-pressed
-    ### on adapte la solution
+    ### il dit que ce n'est pas un probleme de python, mais de certains claviers (dont le mien apparemment) qui envoie plein de fois
+    ### le message keypress tant que la touche reste appuyée. On adapte ici la solution
     clavier = evenement.widget.master
     note = evenement.widget.notes[evenement.char]
     touche = clavier.touches[note]

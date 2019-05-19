@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """pyanote.album
 
-(C) Lisa Baget, 2018-2019 <li.baget@laposte.net>
+(C) Lisa Baget, 2018-2019
 
 Ce module contient les fonctions permettant de récupérer sous forme d'album toutes les informations contenues
 dans un fichier Midi. L'album est un dictionnaire qui contient toutes les informations d'un resume, plus une 

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """pyanote.mod_comptage_temps
 
-(C) Lisa Baget et et Matthieu Durand, 2018-2019 <li.baget@laposte.net> 
+(C) Lisa Baget et et Matthieu Durand, 2018-2019
 
 Ce module définit un modificateur de controleur permettant d'interagir
 avec une interface de karaoke.

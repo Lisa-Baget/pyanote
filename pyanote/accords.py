@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """pyanote.accords
 
-(C) Lisa Baget, 2018-2019 <li.baget@laposte.net>
+(C) Lisa Baget, 2018-2019
 
 Ce module contient les fonctions permettant de construire des accords.
 """
@@ -11,15 +11,15 @@ ACCORDS = {
     "aucun": [0],
     "majeur": [0, 4, 7],
     "mineur": [0, 3, 7],
-    "augmenté": [0, 4, 8],
-    "diminué": [0, 3, 6],
-    "sixième majeure": [0, 4, 7, 9],
-    "sixième mineure": [0, 3, 7, 9],
-    "septième": [0, 4, 7, 10],
-    "septième majeure": [0, 4, 7, 11],
-    "septième mineure": [0, 3, 7, 10],
-    "septième augmentée": [0, 4, 8, 10],
-    "septième diminuée": [0, 3, 6, 9]
+    "augmente": [0, 4, 8],
+    "diminue": [0, 3, 6],
+    "sixieme majeure": [0, 4, 7, 9],
+    "sixieme mineure": [0, 3, 7, 9],
+    "septieme": [0, 4, 7, 10],
+    "septieme majeure": [0, 4, 7, 11],
+    "septieme mineure": [0, 3, 7, 10],
+    "septieme augmentee": [0, 4, 8, 10],
+    "septieme diminuee": [0, 3, 6, 9]
 }
 
 def construire_accord(note, nom_accord):

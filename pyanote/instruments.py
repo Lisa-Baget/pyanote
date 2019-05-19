@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """pyanote.instruments
 
-(C) Lisa Baget, 2018-2019 <li.baget@laposte.net>
+(C) Lisa Baget, 2018-2019
 
 Ce module construit un dictionnaire de tous les instruments
 Midi à partir d'un fichier json créé par Maximillian von Briesen

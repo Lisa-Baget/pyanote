@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """pyanote.mod_temps_total
 
-(C) Lisa Baget, 2018-2019 <li.baget@laposte.net>
+(C) Lisa Baget, 2018-2019
 
 Ce module définit un modificateur de controleur permettant de calculer
 le temps écoulé depuis le début de la chanson.

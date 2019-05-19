@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """pyanote.mod_midi
 
-(C) Lisa Baget, 2018-2019 <li.baget@laposte.net>
+(C) Lisa Baget, 2018-2019
 
 Ce module définit un modificateur de controleur permettant de stopper 
 les notes quand on met le controleur en pause ou en arret. Sans ce module,
