@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """pyanote.piste
 
-(C) Lisa Baget, 2018-2019 <li.baget@laposte.net>
+(C) Lisa Baget, 2018-2019
 
 Ce module contient les fonctions permettant de construire la liste de tous les évènements contenus
 dans une unique piste d'un fichier Midi.

@@ -14,6 +14,8 @@ pour savoir comment lire un fichier json.
 import json
 
 INSTRUMENTS = {}
+'''
+'''
 
 with open('pyanote/instruments.json') as json_file:  
     liste_instruments = json.load(json_file)

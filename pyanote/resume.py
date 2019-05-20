@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """pyanote.resume
 
-(C) Lisa Baget, 2018-2019 <li.baget@laposte.net>
+(C) Lisa Baget, 2018-2019
 
 Ce module contient les fonctions permettant de construire un dictionnaire qui contient les informations
 essentielles d'un fichier Midi, apres une lecture partielle.

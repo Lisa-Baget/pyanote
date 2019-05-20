@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """pyanote.notes
 
-(C) Lisa Baget, 2018-2019
+(C) Lisa Baget, Matthieu Durand, 2018-2019
 
 Ce module contient les transformations entre les noms de notes (par ex "C#4") et leur valeur MIDI.
 """

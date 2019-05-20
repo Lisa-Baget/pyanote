@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """pyanote.son
 
-(C) Lisa Baget, 2018-2019 <li.baget@laposte.net>
+(C) Lisa Baget, 2018-2019
 
 Ce module contient les fonctions permettant de jouer un unique message Midi.
 """
@@ -12,14 +12,6 @@ pgm.init()
 
 def connecter_sortie(ident=pgm.get_default_output_id()):
     return pgm.Output(ident)
-
-def message(sortie_son, message):
-    if len(message) == 3:
-        message_controle(sortie_son, message)
-    elif len(message) == 1:
-        message_systeme(sortie_son, message)
-    else:
-        raise ValueError("La sortie MIDI ne prend pas en compte les messages meta.")
 
 def message_controle(sortie_son, message):
     sortie_son.write_short(*message)

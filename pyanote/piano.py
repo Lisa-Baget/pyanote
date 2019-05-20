@@ -1,7 +1,14 @@
+"""pyanote.piano
+
+(C) Lisa Baget, 2018-2019
+
+Ce module contient les fonctions permettant construire un piano qui est consreuit
+a partir d'un piano et d'un ensemble de touches de controles.
+"""
 import tkinter as tk
 import pyanote.notes
 import pyanote.son
-import pyanote.clavier1 as pycl
+import pyanote.clavier as pycl
 import pyanote.instruments as inst
 import pyanote.accords as pyacc
 import math
@@ -96,7 +103,7 @@ def creer_controle_accords(piano, controles):
     return accords
 
 def changement_accords(piano):
-    piano.clavier.accords = piano.accords.get()
+    piano.clavier.accord = piano.accords.get()
 
 def creer_controle_octave(piano, controles, nb_octaves):
     octave = tk.Spinbox(piano, from_ = 0, to=nb_octaves-1, width=2, state='readonly', wrap=True)
@@ -113,8 +120,8 @@ if __name__ == "__main__":
     fenetre.title = "py@note" 
     sortie_midi = pyanote.son.connecter_sortie()
     params_touches = {
-        "blanche": {"w" : 40, "h": 180, "couleur": "ivory"},
-        "noire": {"w" : 26, "h": 110, "couleur": "black"}
+        "blanche": {"w" : 40, "h": 180, "couleur": "ivory", "altcouleur": "ghostwhite", "text": "lightgray"},
+        "noire": {"w" : 24, "h": 110, "couleur": "black", "altcouleur": "gray", "text": "silver"}
     }
     piano1 = creer_piano(fenetre, sortie_midi, 3, 5, params_touches)
     piano1.pack()
