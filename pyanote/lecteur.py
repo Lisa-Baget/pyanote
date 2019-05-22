@@ -15,16 +15,21 @@ import sys
 import pyanote.controleur as cont
 import pyanote.modificateurs as mods
 
-
-def creer_lecteur(maitre, midi):
+def creer_lecteur(maitre, midi, piano = False, kar = False):
     # initialisation du lecteur
     lecteur = tk.Frame(maitre, width = 300, height = 300, bg = 'black')
     maitre.lecteur = lecteur
+    lecteur.kar = kar
     lecteur.actif = False ### on n'a pas chargé de fichier
     lecteur.pause = True ### on est en pause
+    lecteur.clavier = piano.clavier
     lecteur.midi = midi
     lecteur.controleur = False
     lecteur.temps = tk.StringVar(lecteur, "00.00")   ### STRINGVAR
+
+
+
+
     # mise en place des widgets
     lecteur.titre = creer_titre(lecteur)
     lecteur.fichier = creer_affichage_fichier(lecteur)
@@ -60,11 +65,13 @@ def changer_fichier(evenement):
         return
     ## DEBUT ANALYSE
     lecteur.controleur['vitesse'] = float('inf')
+    mods.preparer_modificateurs(lecteur.controleur,  kar = lecteur.kar)
     cont.demarrer(lecteur.controleur)
     lecteur.defilement.configure(to = lecteur.controleur['mod_temps/chanson'][0] // 10**6)
     cont.reinitialiser_controleur(lecteur.controleur)
     ## FIN ANALYSE
-    mods.preparer_modificateurs(lecteur.controleur, midi = lecteur.midi, horloge = lecteur.temps, defilement = lecteur.defilement)
+    mods.preparer_modificateurs(lecteur.controleur, midi = lecteur.midi, horloge = lecteur.temps, 
+        defilement = lecteur.defilement, clavier = lecteur.clavier, kar = lecteur.kar)
     lecteur.controleur['thread'] = True
     lecteur.actif = True
     nom_court = nouveau_fichier.split('/')[-1]
@@ -74,7 +81,7 @@ def changer_fichier(evenement):
     demarrer_lecture(lecteur)
 
 def creer_affichage_pistes(lecteur):
-    frame = tk.Frame(lecteur, height=175, width=280)
+    frame = tk.Frame(lecteur, height=175, width=280, bg = "darkslategrey", relief = 'sunken')
     frame.place(x = 10, y=55)
     return frame
 

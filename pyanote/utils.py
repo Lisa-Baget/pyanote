@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """pyanote.utils
 
-(C) Lisa Baget, 2018-2019
+(C) Lisa Baget et Matthieu Durand, 2018-2019
 
 Ce module contient les fonctions permettant de lire des informations simples dans un fichier binaire Midi.
 

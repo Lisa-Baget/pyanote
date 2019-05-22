@@ -18,6 +18,7 @@ MINVOLUME = 133 ## si le volume est au dessous de 133 on n'entend plus rien
 def creer_piano(contenant, sortie_midi, octave_debut, nb_octaves, params):
     w_piano = params['blanche']['w'] * 7 * nb_octaves
     piano = tk.Canvas(contenant, width = w_piano, height = params['blanche']['h'] + 46)
+    piano.octave_debut = octave_debut
     piano.clavier = pycl.creer_clavier(piano, sortie_midi, octave_debut, nb_octaves, params)
     piano.clavier.place(x = 0, y = 48)
     piano.controles = creer_controles(piano, nb_octaves, w_piano)
@@ -106,13 +107,13 @@ def changement_accords(piano):
     piano.clavier.accord = piano.accords.get()
 
 def creer_controle_octave(piano, controles, nb_octaves):
-    octave = tk.Spinbox(piano, from_ = 0, to=nb_octaves-1, width=2, state='readonly', wrap=True)
+    octave = tk.Spinbox(piano, from_ = piano.octave_debut, to= piano.octave_debut + nb_octaves-2, width=2, state='readonly', wrap=True)
     octave.configure(command = lambda: changement_octave(piano))
     return octave
 
 
 def changement_octave(piano):
-    octave = int(piano.octave.get())
+    octave = int(piano.octave.get()) - piano.octave_debut
     piano.clavier.octaves[octave].focus_set()
 
 if __name__ == "__main__":

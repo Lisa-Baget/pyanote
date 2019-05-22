@@ -2,27 +2,30 @@
 # -*- coding: utf-8 -*-
 """pyanote.modificateurs
 
-(C) Lisa Baget, 2018-2019
+(C) Lisa Baget et Matthieu Durand, 2018-2019
 
 Ce module contient les fonctions permettant de modifier les actions d'un controleur.
 """
 import pyanote.son as son
+import pyanote.karaoke as karaoke
 import math
 
 MODIFICATEURS_STANDARD = {
     'midi' : False,
     'horloge' : False,
     'defilement': False,
-    'kar': False
+    'kar': False,
+    'clavier': False
 }
 
 def initialiser_modificateurs(controleur):
     controleur.update(MODIFICATEURS_STANDARD)
     initialiser_notes_actives(controleur) # besoin que quand midi mais compliqué
     controleur['mod_temps'], controleur['mod_temps/chanson'] = 0, {}
+    controleur['mod_ticks'], controleur['mod_ticks/chanson'] = 0, {}
     controleur['mod_canaux_libres'], controleur['mod_canaux_libres/chanson'] = [True] * 16, {}
     controleur['mod_kar'] = controleur['fichier'][-4:] == '.kar' ## vrai quand le fichier est de la forme "test.kar"
-    controleur['mod_paroles'], controleur['mod_paroles/chanson'] = [], {}
+    controleur['mod_paroles'], controleur['mod_paroles/chanson'] = {0: []}, {}
 
 def preparer_modificateurs(controleur, **params):
     cles_autorisees = list(MODIFICATEURS_STANDARD)
@@ -57,11 +60,16 @@ def executer_modificateurs_fin_chanson(controleur):
     '''
     numero_chanson = controleur['index_chanson']
     controleur['mod_temps/chanson'][numero_chanson] = controleur['mod_temps']
+    controleur['mod_ticks/chanson'][numero_chanson] = controleur['mod_ticks']
     controleur['mod_temps'] = 0
+    controleur['mod_ticks'] = 0
     controleur['mod_canaux_libres/chanson'][numero_chanson] = controleur['mod_canaux_libres']
     controleur['mod_canaux_libres'] = [True] * 16
-    controleur['mod_paroles/chanson'][numero_chanson] = controleur['mod_paroles']
-    controleur['mod_paroles'] = []
+    if controleur['mod_kar']:
+        controleur['mod_paroles/chanson'][numero_chanson] = controleur['mod_paroles']
+    if controleur['kar']:
+        karaoke.mettre_a_jour_karaoke(controleur['kar'], controleur['mod_paroles'])
+    controleur['mod_paroles'] = {0: []}
 
 
 def executer_modificateurs_fin_album(controleur):
@@ -74,6 +82,7 @@ def executer_modificateurs_delta_temps(controleur, ticks, micros):
         normale (pas modifiée par la vitesse) valant ticks ou micros (suivant unité mesure).
     '''
     controleur['mod_temps'] = controleur['mod_temps'] + micros
+    controleur['mod_ticks'] = controleur['mod_ticks'] + ticks
     if controleur['horloge'] or controleur['defilement']:
         nouveau_secondes = math.floor(controleur['mod_temps'] // 10**6)
         if nouveau_secondes > controleur['mod_derniere_seconde']:
@@ -90,6 +99,8 @@ def executer_modificateurs_message_controle(controleur, num_piste, message):
     ''' Cette fonction est appelée à chaque fois que la boucle de lecture doit traiter
     un message de controle sur une certaine piste.
     '''
+    if controleur['clavier']:
+        gerer_clavier(controleur['clavier'], message)
     if controleur['vitesse'] == float('inf'):
         gerer_canaux_libres(controleur, message)
     elif  controleur['midi']:
@@ -103,14 +114,14 @@ def executer_modificateurs_message_meta(controleur, num_piste, message):
     '''
     if message[0] == 1 and controleur['mod_kar']: 
         if controleur['vitesse'] == float('inf'): # on est en mode analyse
-            controleur['mod_paroles'].append([controleur['mod_temps'], message[1]]) ## sauvegarde
+            ticks = controleur['mod_ticks']
+            if ticks == 0:
+                controleur['mod_paroles'][0].append(message[1]) ## sauvegarde d'1 titre
+            else:
+                controleur['mod_paroles'][ticks] = message[1]
         else:
             if controleur['kar']:
-                ### C'est la qui faudra dire au widget de controleur['kar'] ce qui'il faut faire
-                ### message[1] contient le message courant
-                ### controleur['kar'] le widget qui doit gerer ce message
-                ### pour tests on fait seulement un print
-                print(controleur['mod_temps'], message[1])
+                karaoke.changer_couleur_karaoke(controleur['kar'], controleur['mod_ticks'])
 
 def executer_modificateurs_message_systeme(controleur, num_piste, message):
     ''' Cette fonction est appelée à chaque fois que la boucle de lecture doit traiter
@@ -138,7 +149,7 @@ def gerer_notes_actives(controleur, num_piste, message):
 def vider_notes_actives(controleur):
     for canal in range(16):
         for note in controleur['mod_notes_actives'][canal]:
-            son.message_controle(controleur['midi'], [0x80 + canal, note, 0])
+            arreter_note(controleur, note, canal)
         controleur['mod_notes_actives'][canal] = set([]) ## vider l'ensemble
 
 def gerer_canaux_libres(controleur, message):
@@ -146,3 +157,27 @@ def gerer_canaux_libres(controleur, message):
         canal = message[0] % 16
         if canal != 9: # le canal drums est toujours libre
             controleur['mod_canaux_libres'][canal] = False
+
+def arreter_note(controleur, note, canal):
+    son.message_controle(controleur['midi'], [0x80 + canal, note, 0])
+
+def gerer_clavier(clavier, message):
+    instruction = message[0] // 16
+    canal = message[0] % 16
+    note = message[1]
+    try:
+        if instruction == 9 and canal != 9:
+            illuminer_touche(clavier.touches[note])
+        elif instruction == 8 and canal != 9:
+            retablir_touche(clavier.touches[note])
+    except KeyError: #Quand ca n'est pas une touche du clavier
+        pass
+
+def illuminer_touche(touche):
+    touche.configure(bg = touche.altcouleur)
+    touche.itemconfigure(touche.texte, state = "disabled")
+
+def retablir_touche(touche):
+    touche.configure(bg = touche.couleur)
+    touche.itemconfigure(touche.texte, state = "hidden")
+
