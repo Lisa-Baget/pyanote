@@ -29,10 +29,10 @@ def creer_controleur(nom_fichier, **params):
 
 def reinitialiser_controleur(controleur):
     controleur.update(CONTROLEUR_STANDARD) ## on lui rajoute toutes les clés/valeurs du controleur standard et on remplace si deja la
-    controleur["micros/tick"] = maj_tempo(controleur, 500000) # valeur par defaut, 120BPM -> (60/120) * 10**6 =  500000 microsecondes/beat
+    controleur["micros/tick"] = maj_tempo(controleur)
     mod.reinitialiser_modificateurs(controleur)
    
-def maj_tempo(controleur, tempo):
+def maj_tempo(controleur, tempo = 500000): # valeur par defaut, 120BPM -> (60/120) * 10**6 =  500000 microsecondes/beat
     ### le ticks/beat dans le controleur est ce qui a été lu dans le header
     ### le tempo envoyé par les messages meta est en microsecondes/beat
     return tempo / controleur["ticks/noire"] # Le retour est en microsecondes / tick
@@ -59,17 +59,17 @@ def boucle_lecture(controleur):
 def evenement_courant(controleur):
     ''' Retourne l'evenement qui doit etre joué par le controleur.
     '''
-    album = controleur['chansons']
+    chansons = controleur['chansons']
     numero_chanson = controleur["index_chanson"]
     numero_evenement = controleur["index_evenement"]
-    return album[numero_chanson][numero_evenement]
+    return chansons[numero_chanson][numero_evenement]
 
 def prochain_evenement(controleur):
     ''' Mise a jour du controleur pour qu'il indique le prochain evenement courant.
     '''
-    album = controleur['chansons']
+    chansons = controleur['chansons']
     numero_chanson = controleur['index_chanson']
-    chanson = album[numero_chanson]
+    chanson = chansons[numero_chanson]
     if controleur["index_evenement"] + 1 == len(chanson): # on a traité le dernier evenement de la chanson
         prochaine_chanson(controleur)
     else: # continuer sur la même piste
@@ -77,8 +77,8 @@ def prochain_evenement(controleur):
 
 def prochaine_chanson(controleur):
     mod.executer_modificateurs_fin_chanson(controleur)
-    album = controleur['chansons']
-    if controleur["index_chanson"] + 1 == len(album): # on a traité la dernière chanson
+    chansons = controleur['chansons']
+    if controleur["index_chanson"] + 1 == len(chansons): # on a traité la dernière chanson
         mod.executer_modificateurs_fin_album(controleur)
         controleur["fin"] = True ## c'est la fin
     else: # on  doit passer à la chanson suivante
