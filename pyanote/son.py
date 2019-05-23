@@ -8,18 +8,30 @@ Ce module contient les fonctions permettant de jouer un unique message Midi.
 """
 import pygame.midi as pgm
 
-pgm.init()
 
-def connecter_sortie(ident=pgm.get_default_output_id()):
+def connecter_sortie():
+    ''' Appeler cette fonction pour récupérer une sortie MIDI.
+    '''
+    pgm.init() ### mettre le init ici va peut etre réler le bug sur le portable
+    ident=pgm.get_default_output_id()
     return pgm.Output(ident)
 
 def message_controle(sortie_son, message):
+    ''' Envoie un message de controle [statut, arg1, arg2] à la sortie son.
+    '''
+    ### message est une liste de 3 arguments, mais write_short veut 3 args
+    ### et pas une liste. On met * pour que ça marche.
     sortie_son.write_short(*message)
 
 def message_systeme(sortie_son, message):
+    ''' Envoie un message systeme [chaine_binaire] à la sortie son.
+    '''
     sortie_son.write_sys_ex(0, *message)
 
 def deconnecter(sortie_son):
+    ''' Ferme la sortie son. Pygame.midi fait un message d'erreur si ce n'est pas
+    fermé avant la fin du programme.
+    '''
     sortie_son.close()
 
 if __name__ == "__main__":

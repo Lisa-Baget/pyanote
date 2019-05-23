@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """pyanote.controleur
 
-(C) Lisa Baget, 2018-2019
+(C) Lisa Baget, 2018-2019, sur une idée de Phandaal <https://github.com/phandaal>
 
 Ce module contient les fonctions permettant construire un controleur qui va gerer la lecture d'un
 fichier MIDI.
@@ -21,23 +21,40 @@ CONTROLEUR_STANDARD = {
 }
 
 def creer_controleur(nom_fichier, **params):
+    ''' Crée un controleur, qui est un album contenant en plus des paramètres de contrôle
+    pour contrôler la boucle de lecture.
+
+    Les paramètres optionnels sont 
+    (midi = sortie_midi,  horloge = widget, defilement = widget, kar = widget, clavier = widget)
+
+    Si ces paramètres sont "correctement initialisés", la boucle de lecture leur enverra les infos
+    qui les concernent au moment voulu.
+
+    '''
     controleur = alb.creer_album(nom_fichier) ## le controleur est d'abord un album 
-    reinitialiser_controleur(controleur)
+    reinitialiser_controleur(controleur) # on remet tous ses params standard à 0
     mod.initialiser_modificateurs(controleur) ## faire tous les ajouts prévus dans modificateurs.py
-    mod.preparer_modificateurs(controleur, **params)
+    mod.preparer_modificateurs(controleur, **params) ## puis lui passer les parametres
     return controleur
 
 def reinitialiser_controleur(controleur):
+    ''' Cette fonction doit être appelée pour pouvoir réutiliser le contrôleur après un arrêt.
+    '''
     controleur.update(CONTROLEUR_STANDARD) ## on lui rajoute toutes les clés/valeurs du controleur standard et on remplace si deja la
-    controleur["micros/tick"] = maj_tempo(controleur)
+    controleur["micros/tick"] = maj_tempo(controleur) ## mise a jour tempo par defaut
     mod.reinitialiser_modificateurs(controleur)
    
 def maj_tempo(controleur, tempo = 500000): # valeur par defaut, 120BPM -> (60/120) * 10**6 =  500000 microsecondes/beat
+    ''' Mise à jour du tempo, soit avec la valeur par défaut à l'initialisation ou la réinitialisation
+    du controleur, soit aquand il y a un message meta changement de tempo.
+    '''
     ### le ticks/beat dans le controleur est ce qui a été lu dans le header
     ### le tempo envoyé par les messages meta est en microsecondes/beat
     return tempo / controleur["ticks/noire"] # Le retour est en microsecondes / tick
 
 def demarrer(controleur, thread = False):
+    ''' Lance la boucle de lecture. Si thread = True, cette boucle sera exécutée dans un thread.
+    '''
     mod.preparer_modificateurs(controleur)
     if thread:
         controleur['thread'] = threading.Thread(None, boucle_lecture, None, [controleur])
@@ -46,6 +63,8 @@ def demarrer(controleur, thread = False):
         boucle_lecture(controleur)
 
 def boucle_lecture(controleur):
+    ''' boucle de lecture pricipale utilisant toutes les variables du controleur.
+    '''
     while not controleur['fin']: # tant que le controleur ne dit pas que c'est fini
         if controleur['pause']: # si le controleur est en pause
             mod.executer_modificateurs_pause(controleur)
@@ -76,6 +95,8 @@ def prochain_evenement(controleur):
         controleur["index_evenement"] += 1
 
 def prochaine_chanson(controleur):
+    ''' Mise a jour du controleur pour qu'il indique la prochaine chanson.
+    '''
     mod.executer_modificateurs_fin_chanson(controleur)
     chansons = controleur['chansons']
     if controleur["index_chanson"] + 1 == len(chansons): # on a traité la dernière chanson
@@ -86,15 +107,21 @@ def prochaine_chanson(controleur):
         controleur["index_evenement"] = 0
 
 def traiter_evenement(controleur, evenement):
+    ''' Traite l'évènement
+    '''
     traiter_delta_temps(controleur, evenement[0])
     traiter_message(controleur, evenement[1], evenement[2])
 
 def traiter_delta_temps(controleur, ticks):
+    ''' Traite le delta temps. Sleep pendant le temps voulu.
+    '''
     micros = ticks * controleur["micros/tick"]
     mod.executer_modificateurs_delta_temps(controleur, ticks, micros)
     time.sleep(micros / (10**6 * controleur["vitesse"]))
 
 def traiter_message(controleur, num_piste, message):
+    ''' Traite un message.
+    '''
     if len(message) == 1: # systeme
         mod.executer_modificateurs_message_systeme(controleur, num_piste, message)
     elif len(message) == 3: # controle
@@ -105,8 +132,6 @@ def traiter_message(controleur, num_piste, message):
             controleur["micros/tick"] = maj_tempo(controleur, message[1])
 
 if __name__ == "__main__":
-    import tkinter
-    from tkinter.filedialog import askopenfilename
     import pyanote.son as son
     nom_fichier = 'fichiersMidi/Madness - Baggy Trousers.kar'
     sortie_son = son.connecter_sortie()
@@ -121,7 +146,17 @@ if __name__ == "__main__":
     t2 = time.time()
     print("Temps écoulé par la lecture vitesse infinie:", t2 - t1)
     reinitialiser_controleur(controleur)
+    print('**********************************************')
+    print('Demarrage du controleur dans un thread')
+    print('**********************************************')
     demarrer(controleur, True)
+    print("Vous pouvez tester les instructions suivantes pendant l'exécution de la boucle de lecture")
+    print('-----------------------------------------------------------------------------------------')
+    print("controleur['pause'] = True")
+    print("controleur['pause'] = False")
+    print("controleur['vitesse'] = 0.5")
+    print("controleur['vitesse'] = 4")
+    print("controleur['fin'] = True")
     
     ### Résultats de vieux tests
     ### Avec modificateurs vides

@@ -26,23 +26,25 @@ def nombre_vers_note(nombre, prefere='#', lang=EN):
     return note + str(octave)
 
 def note_vers_nombre(chaine, lang=EN):
-    dernier = -1
+    dernier = -1 ## on va déchiffrer la chaîne à partir de la fin
     modificateur = 0
     try:
-        octave = int(chaine[dernier])
-        dernier = dernier -1
-    except ValueError:
-        octave = 4
+        octave = int(chaine[dernier]) ## si on a reussi a transformé le dernier caractère en entier, c'est l'octave
+        dernier = dernier -1 # il faudra regarder l'avant-dernier
+    except ValueError: # si ce n'était pas un entier
+        octave = 4 # c'est l'octave par défaut
     if chaine[dernier] == '#':
         modificateur = 1
         dernier = dernier -1
     elif chaine[dernier] == 'b':
         modificateur = -1
         dernier = dernier -1
-    if dernier != -1:
-        chaine = chaine[:dernier + 1]
+    if dernier != -1: ## si on a recupere un octave ou un modificateur
+        chaine = chaine[:dernier + 1] ## on les enleve maintenant de la chaine
     valeur_note = None
-    for cle in lang:
+    for cle in lang: # recherche de la clé associée à la valeur, pas super efficace
+        # il faudrait peut-être construire une fois pour toute le dico inverse
+        # pas un problçème pour l'instant
         if lang[cle] == chaine:
             valeur_note = cle
     if valeur_note is None:
