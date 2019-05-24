@@ -13,7 +13,12 @@ def connecter_sortie():
     ''' Appeler cette fonction pour récupérer une sortie MIDI.
     '''
     pgm.init() ### mettre le init ici va peut etre réler le bug sur le portable
-    ident=pgm.get_default_output_id()
+    for ident in pgm.get_count():
+        info = pgm.get_device_info(ident)
+        if info[3] == 1: # c'est un output
+            print("MIDI: Utilisation de", info[1])
+            break
+    #ident=pgm.get_default_output_id()
     return pgm.Output(ident)
 
 def message_controle(sortie_son, message):
