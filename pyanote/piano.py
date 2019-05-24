@@ -34,14 +34,14 @@ def creer_controles(piano, nb_octaves, w_piano):
     piano.famille = creer_controle_famille(piano, controles)
     piano.famille.place(x = 60, y=7)
     piano.instrument = creer_controle_instrument(piano, controles)
-    piano.instrument.place(x = 255, y=7)
+    piano.instrument.place(x = 275, y=7)
     piano.volume = creer_controle_volume(piano, controles)
-    piano.volume.place(x = 520, y=7)
+    piano.volume.place(x = 580, y=7)
     piano.accords = creer_controle_accords(piano, controles)
-    piano.accords.place(x = 575, y=7)
+    piano.accords.place(x = 655, y=7)
     piano.octave = creer_controle_octave(piano, controles, nb_octaves)
-    piano.octave.place(x = 760, y=7)
-    for texte, position in [["canal", 10], ["famille", 60], ["instrument", 255], ["volume", 520],["accords", 575], ["octave", 760]]:
+    piano.octave.place(x = 870, y=7)
+    for texte, position in [["canal", 10], ["famille", 60], ["instrument", 275], ["volume", 580],["accords", 655], ["octave", 870]]:
         label = tk.Label(controles, text = texte, fg = "silver", bg = "black", font = police_label)
         label.place(x = position, y=28)
     return controles
