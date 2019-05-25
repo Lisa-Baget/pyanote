@@ -58,7 +58,9 @@ else: ####### UTILISATION DU MIDI PHHANDAAL
         sortie_son.short_message_aux(*message)
 
     def message_systeme(sortie_son, message):
-        ''' Pas fait donc on les désactive tous.
+        ''' Pas fait donc on les désactive tous. Et j'entends pas de différence
+        donc ça veut surement dire que la sortie midi Microsoft ne fait pas
+        grand chose des messages systemes.
         '''
         pass
 
