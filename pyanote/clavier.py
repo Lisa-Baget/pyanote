@@ -88,6 +88,7 @@ def appuyer_touche(clavier, note):
         colorer_note(clavier, note)
 
 def jouer_note(clavier, note):
+	print("Je dois jouer {}".format(note))
     pyanote.son.message_controle(clavier.midi, [0x90 + clavier.canal, note, clavier.volume])
 
 def colorer_note(clavier, note):
