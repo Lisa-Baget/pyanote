@@ -106,7 +106,9 @@ def changement_accords(piano):
     piano.clavier.accord = piano.accords.get()
 
 def creer_controle_octave(piano, controles, nb_octaves):
-    valeurs = [str(i) for i in range(piano.octave_debut, piano.octave_debut + nb_octaves)]
+    valeurs = []
+    for i in range(piano.octave_debut, piano.octave_debut + nb_octaves):
+        valeurs.append(str(i))
     octave = tk.Spinbox(piano, values = valeurs, width=2, state='readonly', wrap=True)
     octave.configure(command = lambda: changement_octave(piano))
     return octave
