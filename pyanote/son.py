@@ -3,41 +3,73 @@
 """pyanote.son
 
 (C) Lisa Baget, 2018-2019
+(C) Phandaal pour portage Win32Midi
 
 Ce module contient les fonctions permettant de jouer un unique message Midi.
 """
-import pygame.midi as pgm
+PYGAME = False ### Mettre False ici pour utiliser la version Phandaal
+
+if PYGAME: ### UTILISATION DU MIDI PYGAME COMME ECRIT PAR LISA
+
+    import pygame.midi as pgm
+
+    def connecter_sortie():
+        ''' Appeler cette fonction pour récupérer une sortie MIDI.
+        '''
+        pgm.init() ### mettre le init ici va peut etre réler le bug sur le portable
+        for ident in range(pgm.get_count()):
+            info = pgm.get_device_info(ident)
+            if info[3] == 1: # c'est un output
+                print("MIDI: Utilisation de", info[1])
+                break
+        #ident=pgm.get_default_output_id()
+        return pgm.Output(ident)
+
+    def message_controle(sortie_son, message):
+        ''' Envoie un message de controle [statut, arg1, arg2] à la sortie son.
+        '''
+        ### message est une liste de 3 arguments, mais write_short veut 3 args
+        ### et pas une liste. On met * pour que ça marche.
+        sortie_son.write_short(*message)
+
+    def message_systeme(sortie_son, message):
+        ''' Envoie un message systeme [chaine_binaire] à la sortie son.
+        '''
+        sortie_son.write_sys_ex(0, *message)
+
+    def deconnecter(sortie_son):
+        ''' Ferme la sortie son. Pygame.midi fait un message d'erreur si ce n'est pas
+        fermé avant la fin du programme.
+        '''
+        sortie_son.close()
+
+else: ####### UTILISATION DU MIDI PHHANDAAL
+    
+    import pyanote.midi as pm
+    
+    def connecter_sortie():
+        ''' Appeler cette fonction pour récupérer une sortie MIDI.
+        '''
+        return pm.Midi()
+
+    def message_controle(sortie_son, message):
+        ''' Envoie un message de controle [statut, arg1, arg2] à la sortie son.
+        '''
+        sortie_son.short_message_aux(*message)
+
+    def message_systeme(sortie_son, message):
+        ''' Pas fait donc on les désactive tous. Et j'entends pas de différence
+        donc ça veut surement dire que la sortie midi Microsoft ne fait pas
+        grand chose des messages systemes.
+        '''
+        pass
+
+    def deconnecter(sortie_son):
+        ''' Ferme la sortie son.
+        '''
+        sortie_son.close_device()
 
 
-def connecter_sortie():
-    ''' Appeler cette fonction pour récupérer une sortie MIDI.
-    '''
-    pgm.init() ### mettre le init ici va peut etre réler le bug sur le portable
-    for ident in range(pgm.get_count()):
-        info = pgm.get_device_info(ident)
-        if info[3] == 1: # c'est un output
-            print("MIDI: Utilisation de", info[1])
-            break
-    #ident=pgm.get_default_output_id()
-    return pgm.Output(ident)
-
-def message_controle(sortie_son, message):
-    ''' Envoie un message de controle [statut, arg1, arg2] à la sortie son.
-    '''
-    ### message est une liste de 3 arguments, mais write_short veut 3 args
-    ### et pas une liste. On met * pour que ça marche.
-    sortie_son.write_short(*message)
-
-def message_systeme(sortie_son, message):
-    ''' Envoie un message systeme [chaine_binaire] à la sortie son.
-    '''
-    sortie_son.write_sys_ex(0, *message)
-
-def deconnecter(sortie_son):
-    ''' Ferme la sortie son. Pygame.midi fait un message d'erreur si ce n'est pas
-    fermé avant la fin du programme.
-    '''
-    sortie_son.close()
 
 if __name__ == "__main__":
     import time
