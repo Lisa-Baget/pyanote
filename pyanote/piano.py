@@ -85,9 +85,8 @@ def changement_instrument(piano):
     pyanote.son.message_controle(piano.clavier.midi, [0xC0 + piano.clavier.canal, instrument, 0])
 
 def creer_controle_volume(piano, controles):
-    pourcentages = ['{:03}'.format(i) for i in range(101)]
+    pourcentages = ['{:03}'.format(i) for i in range(101)] # formule magique !
     volume_initial = tk.StringVar() # https://stackoverflow.com/questions/32145376/how-can-i-establish-a-default-string-value-on-a-tkinter-spinbox
-    #volume = tk.Spinbox(controles, from_ = 0, to=100, textvar = volume_initial, width=3, state='readonly')
     volume = tk.Spinbox(controles, values=pourcentages, textvar = volume_initial, width=4, state='readonly')
     volume_initial.set("050")
     volume.configure(command = lambda: changement_volume(piano))
@@ -107,7 +106,8 @@ def changement_accords(piano):
     piano.clavier.accord = piano.accords.get()
 
 def creer_controle_octave(piano, controles, nb_octaves):
-    octave = tk.Spinbox(piano, from_ = piano.octave_debut, to= piano.octave_debut + nb_octaves-2, width=2, state='readonly', wrap=True)
+    valeurs = [str(i) for i in range(piano.octave_debut, piano.octave_debut + nb_octaves)]
+    octave = tk.Spinbox(piano, values = valeurs, width=2, state='readonly', wrap=True)
     octave.configure(command = lambda: changement_octave(piano))
     return octave
 
