@@ -55,7 +55,7 @@ else: ####### UTILISATION DU MIDI PHHANDAAL
     def message_controle(sortie_son, message):
         ''' Envoie un message de controle [statut, arg1, arg2] à la sortie son.
         '''
-        sortie_son.short_message(message[0] // 16, message[0] % 16, message[1], message[2])
+        sortie_son.short_message_aux(*message)
 
     def message_systeme(sortie_son, message):
         ''' Pas fait donc on les désactive tous.

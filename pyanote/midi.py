@@ -20,6 +20,10 @@ class Midi(Win32Midi):
         message = channel + 0x10 * code + 0x100 * byte1 + 0x10000 * byte2
         Win32Midi.short_message(self, message)
 
+    def short_message_aux(self, status, byte1, byte2):
+        message = status + byte1 * 0x100 + byte2 * 0x10000
+        Win32Midi.short_message(self, message)
+
     def note_on(self, note, velocity, channel):             #OK
         self.short_message(0x9, channel, note, velocity)
 
