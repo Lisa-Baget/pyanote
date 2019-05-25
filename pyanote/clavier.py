@@ -14,11 +14,12 @@ import pyanote.accords as pyacc
 import pyanote.notes as notes
 import time
 
-def creer_clavier(emplacement, sortie_midi, octave_debut, nb_octaves, params):
+def creer_clavier(emplacement, sortie_midi, octave_debut, nb_octaves, params, lang =notes.EN):
     largeur_octave = params['blanche']['w'] * 7
     clavier = tk.Canvas(emplacement, width = nb_octaves * largeur_octave, height = params['blanche']['h'])
     clavier.touches, clavier.octaves, clavier.midi = {}, [], sortie_midi
     clavier.accord = 'aucun'
+    clavier.lang = lang
     clavier.canal, clavier.volume, clavier.delai_arret = 0, 200, 250
     note_debut = pyanote.notes.note_vers_nombre("C" + str(octave_debut))
     for i in range(nb_octaves):
@@ -51,17 +52,18 @@ def construire_racourcis_clavier(octave, note_debut):
 
 
 def creer_touche(octave, note, x, param):
-	touche = tk.Canvas(octave, width=param['w'], height=param['h'], bg=param['couleur'])
-	octave.master.touches[note] = touche
-	touche.place(x=x, y=0)
-	touche.note = note
-	touche.couleur = param['couleur']
-	touche.altcouleur = param['altcouleur']
-	nom_note = notes.nombre_vers_note(note)
-	touche.texte = touche.create_text(param['w'] / 2, param['h'] - 10, text = nom_note, fill = param['text'], state = 'hidden')
-	touche.appuyee = False
-	touche.bind("<Button-1>", appuyer_touche_souris)
-	touche.bind("<ButtonRelease-1>", relacher_touche_souris)
+        touche = tk.Canvas(octave, width=param['w'], height=param['h'], bg=param['couleur'])
+        clavier = octave.master
+        clavier.touches[note] = touche
+        touche.place(x=x, y=0)
+        touche.note = note
+        touche.couleur = param['couleur']
+        touche.altcouleur = param['altcouleur']
+        nom_note = notes.nombre_vers_note(note, lang = clavier.lang)
+        touche.texte = touche.create_text(param['w'] / 2, param['h'] - 10, text = nom_note, fill = param['text'], state = 'hidden')
+        touche.appuyee = False
+        touche.bind("<Button-1>", appuyer_touche_souris)
+        touche.bind("<ButtonRelease-1>", relacher_touche_souris)
 
 def appuyer_touche_souris(evenement):
     appuyer_touche(evenement.widget.master.master, evenement.widget.note)
@@ -81,7 +83,6 @@ def appuyer_touche(clavier, note):
     touche = clavier.touches[note]
     accord = pyacc.construire_accord(note, clavier.accord)
     touche.appuyee = accord
-    accord = pyacc.construire_accord(note, clavier.accord)
     for note in accord:
         jouer_note(clavier, note)
         colorer_note(clavier, note)
@@ -109,7 +110,7 @@ def relacher_touche(clavier, note):
     touche.appuyee = False
     for note in accord:
         retablir_couleur_note(clavier, note)
-        clavier.after(250, arreter_note, clavier, note)
+        clavier.after(clavier.delai_arret, arreter_note, clavier, note)
 
 def arreter_note(clavier, note):
 	pyanote.son.message_controle(clavier.midi, [0x80 + clavier.canal, note, 0])
@@ -134,7 +135,7 @@ if __name__ == "__main__":
         "blanche": {"w" : 30, "h": 100, "couleur": "ivory", "altcouleur": "ghostwhite", "text": "lightgray"},
         "noire": {"w" : 20, "h": 60, "couleur": "black", "altcouleur": "gray", "text": "silver"}
     }
-    clavier = creer_clavier(fenetre, sortie_midi, 3, 3, params_touches)
+    clavier = creer_clavier(fenetre, sortie_midi, 3, 3, params_touches, lang = notes.FR)
     clavier.pack()
     fenetre.mainloop()
 
