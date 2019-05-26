@@ -76,11 +76,11 @@ def creer_syllabe(karaoke, ticks, texte, coords):
 
 
 
-def changer_couleur_karaoke(karaoke, temps):
+def changer_couleur_karaoke(karaoke, ticks):
     if karaoke.sauvegarde:
         karaoke.texte.itemconfig(karaoke.sauvegarde, fill = 'green')
-    karaoke.texte.itemconfig(karaoke.identifiants[temps], fill = 'lime')
-    karaoke.sauvegarde = karaoke.identifiants[temps]
+    karaoke.texte.itemconfig(karaoke.identifiants[ticks], fill = 'lime')
+    karaoke.sauvegarde = karaoke.identifiants[ticks]
 
 
 
