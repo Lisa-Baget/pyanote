@@ -12,14 +12,14 @@ H_LINE = 12
 W_CHAR = 7
 
 def creer_karaoke(contenant):
-    frame = tk.Frame(contenant, width = 500, height = 298, bg = 'black')
+    frame = tk.Canvas(contenant, width = 500, height = 298, bg = 'black')
     karaoke = tk.Canvas(frame, width = 480, height = 283, bg = 'darkslategrey')
     frame.texte = karaoke
     frame.identifiants = {}
+    frame.sauvegarde = False
+    ## Tout ça c'est la gstion du scrollbar, copié sur intrenet, rien compris
     karaoke.configure(scrollregion = karaoke.bbox("all"))
     karaoke.pack(side = 'left', fill = 'both')
-    frame.sauvegarde = False
-    # rajouter un scrollbarr 
     defilY = tk.Scrollbar(frame, orient = 'vertical')
     defilY.pack(side = 'right', fill = 'y')
     frame.scroll = defilY
@@ -30,9 +30,6 @@ def creer_karaoke(contenant):
 
 
 def mettre_a_jour_karaoke(karaoke, paroles):
-    #for temps, parole in paroles.items():
-    #   if temps != 0:
-    #       print(parole + '*', end = '')
     ## on commence a effacer ce qui peut rester d'une autre chanson
     for temps in karaoke.identifiants:
         karaoke.texte.delete(karaoke.identifiants[temps]) 
@@ -72,9 +69,9 @@ def creer_syllabe(karaoke, ticks, texte, coords):
             ident = karaoke.texte.create_text(coords, text = texte[1:], font = police, anchor = 'nw', fill = "green")
             coords[0] = coords[0] + (len(texte) - 1) * W_CHAR
             return ident
-
-    ident = karaoke.texte.create_text(coords, text = texte, font = police, anchor = 'nw', fill = "green")
-    coords[0] = coords[0] + len(texte) * W_CHAR
+        else:
+            ident = karaoke.texte.create_text(coords, text = texte, font = police, anchor = 'nw', fill = "green")
+            coords[0] = coords[0] + len(texte) * W_CHAR
     return ident
 
 

@@ -56,6 +56,3 @@ def jouer_note_lettre(midi, notes, volume, canal, temps):
 
 def eteindre():
     pygame.midi.quit()
-
-
-

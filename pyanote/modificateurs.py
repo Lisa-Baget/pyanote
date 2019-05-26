@@ -141,7 +141,7 @@ def gerer_notes_actives(controleur, num_piste, message):
     instruction = message[0] // 16
     canal = message[0] % 16
     if canal != 9: # pas besoin pour le canal où on n'arrete pas les notes
-        if instruction: # c'est un note on mais pas une batterie. Pas de faux note off car corrigé dans pistes.py
+        if instruction == 9: # c'est un note on mais pas une batterie. Pas de faux note off car corrigé dans pistes.py
             controleur['mod_notes_actives'][canal].add(message[1]) ## on active la note sur le canal
         elif instruction == 8: # c'est un note off
             controleur['mod_notes_actives'][canal].discard(message[1]) ## on desactive

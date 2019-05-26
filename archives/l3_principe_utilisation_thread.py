@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """l3_principe_utilisation_thread
 
-(C) Lisa Baget, 2018-2019 <li.baget@laposte.net> et Phandaal <https://github.com/phandaal>
+(C) Phandaal <https://github.com/phandaal>, 2019
 
 Principe d'utilisation du thread avec un controleur. On a une fonction foo très longue dont l'execution dépend
 d'un controleur (qui doit etre un mutable, comme un dictionnaire ou une liste). Si on exécute juste
@@ -38,7 +38,7 @@ thread.start()
 ## A partir de ce moment, python va répartir son temps d'execution entre l'environnement principal et le thread:
 ## on aura l'impression que les deux se deroulent en même temps.
 
-print("Après le start, thread vivant?:", thread.isAlive()) 
+print("Après le start, thread vivant?:", thread.isAlive()) #True
 
 time.sleep(0.5) ## Au bout de 0.5 secondes du principal, et pendant ce temps le thread aura continué à afficher
 controleur['mot'] = 'Python' ## le programme principal change le mot dans le controleur
@@ -56,5 +56,5 @@ controleur['stop'] = True ## le programme principal dit au thread de s'arreter e
 print("Avant le join, thread vivant?", thread.isAlive())
 
 thread.join() ## le programme principal attend que le thread s'arrete
-print("Après le join, thread vivant?", thread.isAlive()) ## La on est sur que ça répond True
+print("Après le join, thread vivant?", thread.isAlive()) ## La on est sur que ça répond False
 

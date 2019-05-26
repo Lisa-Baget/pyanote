@@ -15,10 +15,7 @@ import pyanote.resume as res
 import sys
 #import pyanote.son as son
 import pyanote.controleur as cont
-import pyanote.mod_temps_total as modtt
-import pyanote.mod_midi as modmd
-import pyanote.mod_vidage_notes as modvn
-import pyanote.mod_comptage_temps as modct
+import pyanote.modificateurs as mods
 import time
 
 
@@ -63,20 +60,13 @@ def changer_fichier(evenement):
         lecteur.fichier.configure(text=msg_erreur)
         return
     ## DEBUT ANALYSE
-    mod1 = modtt.creer_modificateur_temps()
-    cont.ajouter_modificateur_controle(lecteur.controleur, mod1)
     lecteur.controleur['vitesse'] = float('inf')
     cont.demarrer(lecteur.controleur)
-    lecteur.defilement.configure(to = lecteur.controleur['temps/chanson'][0] // 10**6)
-    cont.initialiser_valeurs_defaut(lecteur.controleur)
+    lecteur.defilement.configure(to = lecteur.controleur['mod_temps/chanson'][0] // 10**6)
+    cont.reinitialiser_controleur(lecteur.controleur)
     ## FIN ANALYSE
+    mods.preparer_modificateurs(lecteur.controleur, midi = lecteur.midi, horloge = lecteur.horloge, defilement = lecteur.defilement)
     lecteur.controleur['thread'] = True
-    mod2 = modmd.creer_modificateur_midi(lecteur.midi)
-    cont.ajouter_modificateur_controle(lecteur.controleur, mod2)
-    mod3 = modvn.creer_modificateur_vidage_notes()
-    cont.ajouter_modificateur_controle(lecteur.controleur, mod3)
-    mod4 = modct.creer_modificateur_comptage(lecteur.horloge, lecteur.defilement)
-    cont.ajouter_modificateur_controle(lecteur.controleur, mod4)
     lecteur.actif = True
     nom_court = nouveau_fichier.split('/')[-1]
     lecteur.fichier.configure(text=nom_court)
@@ -92,7 +82,7 @@ def creer_affichage_pistes(lecteur):
 def creer_afficheur_temps(maitre):
     #police = ('courier', 12, 'bold')
     police = ('Digital-7 Mono', 12, 'bold')
-    afficheur = tk.Label(maitre, text="00:00", relief="sunken", font=police, padx=3, pady=3, background="silver", foreground='whitesmoke')
+    afficheur = tk.Label(maitre, text="00:00", relief="sunken", font=police, padx=3, pady=3, background="black", foreground='limegreen')
     afficheur.place(x = 10, y = 235)
     return afficheur
 
@@ -137,7 +127,7 @@ def demarrer_lecture(lecteur):
     bouton = lecteur.boutons['lecture']
     bouton.configure(image=bouton.image2)
     lecteur.pause = False
-    cont.demarrer(bouton.master.controleur)
+    cont.demarrer(bouton.master.controleur, True)
 
 def presser_bouton_lecture(lecteur):
     bouton = lecteur.boutons['lecture']
