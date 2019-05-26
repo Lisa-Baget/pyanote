@@ -26,10 +26,6 @@ def creer_lecteur(maitre, midi, piano = False, kar = False):
     lecteur.midi = midi
     lecteur.controleur = False
     lecteur.temps = tk.StringVar(lecteur, "00.00")   ### STRINGVAR
-
-
-
-
     # mise en place des widgets
     lecteur.titre = creer_titre(lecteur)
     lecteur.fichier = creer_affichage_fichier(lecteur)
@@ -78,6 +74,9 @@ def changer_fichier(evenement):
     lecteur.fichier.configure(text=nom_court)
     for nom_bouton in lecteur.boutons:
         lecteur.boutons[nom_bouton].configure(state = 'normal')
+    ## Tant qu'on n'a pas géré ces boutons...
+    for nom_bouton in ['debut', 'fin', 'arriere', 'avant']:
+        lecteur.boutons[nom_bouton].configure(state = 'disabled')
     demarrer_lecture(lecteur)
 
 def creer_affichage_pistes(lecteur):
